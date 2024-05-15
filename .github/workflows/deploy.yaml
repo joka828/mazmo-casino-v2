@@ -11,7 +11,7 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # - name: Set up Google Cloud SDK
       #   uses: google-github-actions/setup-gcloud@v2
@@ -23,29 +23,27 @@ jobs:
       - id: "auth"
         uses: "google-github-actions/auth@v2"
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
 
-      - name: Build Docker image
-        env:
-          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
+      - name: "Configure Docker"
         run: |
-          cd backend && docker build -t gcr.io/$GCP_PROJECT_ID/backend:$GITHUB_SHA .
+          gcloud auth configure-docker
+
+      - name: Build Docker image
+        run: |
+          cd backend && docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/backend:$GITHUB_SHA .
 
       - name: Push Docker image
-        env:
-          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
         run: |
-          docker push gcr.io/$env.GCP_PROJECT_ID/backend:$GITHUB_SHA
+          docker push gcr.io/${{ vars.GCP_PROJECT_ID }}/backend:$GITHUB_SHA
 
       - name: Deploy to Cloud Run
-        env:
-          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
         run: |
           gcloud run deploy backend \
-            --image gcr.io/$env.GCP_PROJECT_ID/backend:$GITHUB_SHA \
+            --image gcr.io/${{ vars.GCP_PROJECT_ID }}/backend:$GITHUB_SHA \
             --platform managed \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --region "${{ vars.GCP_REGION }}"

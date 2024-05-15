@@ -6,7 +6,7 @@
 
 ARG NODE_VERSION=18.19.1
 
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}
 
 
 WORKDIR /usr/src/app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm install
 
 # Expose the port that the application listens on.
-EXPOSE 8081
+EXPOSE 8080
 
 RUN npm run build
 

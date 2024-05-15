@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dotenvx/dotenvx": "^0.38.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.17",
@@ -21,8 +22,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
+    "dev": "dotenvx run -- react-scripts start",
+    "build": "dotenvx run -- react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

@@ -12,7 +12,7 @@ connectToDb();
 const mongodbClient = getDatabaseClient();
 
 const app = express();
-const port = 8081;
+const port = process.env.PORT || 8081;
 
 const MAZMO_API_URL = "https://prod.mazmoapi.net";
 
@@ -28,7 +28,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
-  console.log("Whatever");
   res.send("Hello World!");
 });
 

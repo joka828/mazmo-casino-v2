@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/app.js",
-    "build": "tsc",
-    "dev": "tsc-watch --onSuccess \"node dist/app.js\"",
+    "build": "dotenvx run -- tsc",
+    "dev": "dotenvx run -- tsc-watch --onSuccess \"node dist/app.js\"",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@dotenvx/dotenvx": "^0.38.0",
     "@types/express": "^4.17.21",
     "eslint": "^9.2.0",
     "tsc-watch": "^6.2.0"

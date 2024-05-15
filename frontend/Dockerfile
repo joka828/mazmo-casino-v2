@@ -6,36 +6,36 @@
 
 ARG NODE_VERSION=18.19.1
 
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine AS build
 
 # Use production node environment by default.
 ARG NODE_ENV production
 
 WORKDIR /usr/src/app
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.npm to speed up subsequent builds.
-# Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
-# into this layer.
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
+# Copy necessary files and directories for the build
+COPY package.json package-lock.json tsconfig.json .env ./
+COPY src ./src
+COPY public ./public
+
+RUN --mount=type=cache,target=/root/.npm \
     npm ci --omit=dev
+
 
 RUN npm run build
 
 # Stage 2: Serve the React app
-FROM nginx:alpine
+FROM nginx AS serve
 
-# Copy the build output to the default Nginx public directory
-COPY /build /usr/share/nginx/html
+# Copy the build output from the build stage to the default Nginx public directory
+COPY --from=build /usr/src/app/build /usr/share/nginx/html
 
-# Copy the Nginx configuration file
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
-# Expose port 80
-EXPOSE 80
-EXPOSE 8080
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+RUN apt-get update && apt-get install -y gettext-base
 
 # Start Nginx when the container launches
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT "/start.sh"

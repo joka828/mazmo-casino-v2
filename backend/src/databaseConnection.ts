@@ -18,7 +18,7 @@ export const connectToDb = async () => {
 
 export const getIsDatabaseConnected = async () => {
   try {
-    const isConnected = await client.db("admin").command({ ping: 1 });
+    await client.db("admin").command({ ping: 1 });
     return true;
   } catch (error) {
     console.error("Error pinging the database", error);

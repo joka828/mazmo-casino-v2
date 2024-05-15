@@ -8,16 +8,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Check secrets
-        env:
-          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
-        run: echo $GCP_PROJECT_ID && echo $GCP_CREDENTIALS
 
       # - name: Set up Google Cloud SDK
       #   uses: google-github-actions/setup-gcloud@v2

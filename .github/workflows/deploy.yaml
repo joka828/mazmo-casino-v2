@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-and-deploy:
+  deploy-backend-prod:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -30,16 +30,22 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v2"
 
       - name: Build Docker image
+        env:
+          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
         run: |
-          cd backend && docker build -t gcr.io/${{ env.GCP_PROJECT_ID }}/backend:$GITHUB_SHA .
+          cd backend && docker build -t gcr.io/$GCP_PROJECT_ID/backend:$GITHUB_SHA .
 
       - name: Push Docker image
+        env:
+          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
         run: |
-          docker push gcr.io/${{ env.GCP_PROJECT_ID }}/backend:$GITHUB_SHA
+          docker push gcr.io/$env.GCP_PROJECT_ID/backend:$GITHUB_SHA
 
       - name: Deploy to Cloud Run
+        env:
+          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
         run: |
           gcloud run deploy backend \
-            --image gcr.io/${{ env.GCP_PROJECT_ID }}/backend:$GITHUB_SHA \
+            --image gcr.io/$env.GCP_PROJECT_ID/backend:$GITHUB_SHA \
             --platform managed \
             --allow-unauthenticated

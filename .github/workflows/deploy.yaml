@@ -24,12 +24,10 @@ jobs:
         uses: "google-github-actions/auth@v2"
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
-          service_account: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
-        with:
-          version: ">= 363.0.0"
 
       - name: Build Docker image
         run: |

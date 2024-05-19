@@ -15,14 +15,10 @@ const app = express();
 const port = process.env.PORT || 8081;
 
 const MAZMO_API_URL = "https://prod.mazmoapi.net";
+const FRONTEND_URL = "https://mazmo-casino-v2-frontend.vercel.app";
 
 const corsOptions = {
-  origin: [
-    MAZMO_API_URL,
-    "joka.vip",
-    "https://joka.vip",
-    "http://localhost:3000",
-  ],
+  origin: [MAZMO_API_URL, FRONTEND_URL],
 };
 
 app.use(cors(corsOptions));

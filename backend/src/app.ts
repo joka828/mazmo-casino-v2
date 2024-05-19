@@ -12,7 +12,7 @@ connectToDb();
 const mongodbClient = getDatabaseClient();
 
 const app = express();
-const port = process.env.PORT || 8081;
+const port = process.env.PORT ?? 8081;
 
 const MAZMO_API_URL = "https://prod.mazmoapi.net";
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
@@ -24,7 +24,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send(`Hello World! ${FRONTEND_URL}`);
 });
 
 app.get("/health", (req, res) => {

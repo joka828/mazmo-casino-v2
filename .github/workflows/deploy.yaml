@@ -10,7 +10,7 @@ on:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +29,10 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd backend && docker build -t gcr.io/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_BACKEND_SERVICE_NAME }}:$GITHUB_SHA .
+          cd backend && \
+          docker build \
+          --build-arg FRONTEND_URL=${{ vars.FRONTEND_URL }} \
+          -t gcr.io/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_BACKEND_SERVICE_NAME }}:$GITHUB_SHA .
 
       - name: Push Docker image
         run: |

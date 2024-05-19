@@ -24,7 +24,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
-  res.send(`Hello World! ${FRONTEND_URL}`);
+  res.send(
+    `Hello World! ${process.env.FRONTEND_URL ?? "Error reading FRONTEND_URL"}`
+  );
 });
 
 app.get("/health", (req, res) => {

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "dotenvx run -- node dist/app.js",
     "build": "dotenvx run -- tsc",
     "dev": "dotenvx run -- tsc-watch --onSuccess \"node dist/app.js\"",
     "lint": "eslint . --ext .ts",

@@ -17,8 +17,10 @@ export const getData = async () => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/mongodb-health`),
   ]);
 
-  const apiHealthBody = await apiHealthResponse.text();
-  const dbHealthBody = await dbHealthResponse.text();
+  const [apiHealthBody, dbHealthBody] = await Promise.all([
+    apiHealthResponse.text(),
+    dbHealthResponse.text(),
+  ]);
 
   if (!apiHealthBody) {
     console.error("API is down");

@@ -10,7 +10,7 @@ interface Props {
   dbHealth: boolean;
 }
 
-export const getData = async () => {
+const getData = async () => {
   // Fetch data from external API
   const [apiHealthResponse, dbHealthResponse] = await Promise.all([
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/health`),

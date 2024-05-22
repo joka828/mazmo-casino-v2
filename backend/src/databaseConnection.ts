@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-export const CONNECTION_STRING = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:27017/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+export const CONNECTION_STRING = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 const client = new MongoClient(CONNECTION_STRING);
 

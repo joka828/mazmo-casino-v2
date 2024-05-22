@@ -32,6 +32,10 @@ jobs:
           cd backend && \
           docker build \
           --build-arg FRONTEND_URL=${{ vars.FRONTEND_URL }} \
+          --build-arg DB_USER=${{ vars.DB_USER }} \
+          --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          --build-arg DB_NAME=${{ vars.DB_NAME }} \
+          --build-arg DB_HOST=${{ vars.DB_HOST }} \
           -t gcr.io/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_BACKEND_SERVICE_NAME }}:$GITHUB_SHA .
 
       - name: Push Docker image

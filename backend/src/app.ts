@@ -17,11 +17,6 @@ const port = process.env.PORT ?? 8081;
 const MAZMO_API_URL = "https://prod.mazmoapi.net";
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
-console.log("=============== CORS ===============");
-console.log("FRONTEND_URL:", FRONTEND_URL);
-console.log("MAZMO_API_URL:", MAZMO_API_URL);
-console.log("=============== CORS ===============");
-
 const corsOptions = {
   origin: [MAZMO_API_URL, FRONTEND_URL],
 };

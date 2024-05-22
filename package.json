@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "init": "dotenvx run -- npm i && cd frontend && npm install && cd ../backend && npm i && docker-compose up mongodb -d",
+    "init": "npm i && dotenvx run -- npm i && cd frontend && npm install && cd ../backend && npm i && docker-compose up mongodb -d",
     "frontend": "cd frontend && npm run dev",
     "backend": "cd backend && npm run dev",
     "mongodb": "docker-compose up mongodb",
     "dev-backend": "dotenvx run -- concurrently \"npm run mongodb\" \"npm run backend\"",
-    "dev": "dotenvx run -- concurrently \"npm run mongodb\" \"npm run backend\" \"npm run frontend\""
+    "dev": "dotenvx run -- concurrently --names=\"backend,frontend\" -c=\"auto\" \"npm run backend\" \"npm run frontend\""
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^0.38.0",

@@ -1,9 +1,11 @@
-import { GetServerSideProps } from "next";
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
-import { Box, Typography } from "@mui/material";
+import { Box, Skeleton, styled, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 
 interface Props {
   apiHealth: boolean;
@@ -29,54 +31,119 @@ const getData = async () => {
     console.error("Database is down");
   }
 
-  // Pass data to the page via props
   return {
     apiHealth: apiHealthBody === "OK",
     dbHealth: dbHealthBody === "OK",
   };
 };
 
-export default async function Home() {
-  const { apiHealth, dbHealth } = await getData();
+const Menu = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 5rem;
+  padding: 1rem;
+  border: 0.25rem solid #ffd700;
+  border-radius: 1rem;
+`;
+
+const List = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+`;
+
+interface MenuItem {
+  name: string;
+  path: string;
+  imageUrl: string;
+}
+
+const menuItems: MenuItem[] = [
+  {
+    name: "Ruleta",
+    path: "/games/roulette",
+    imageUrl: "https://via.placeholder.com/200",
+  },
+  {
+    name: "Blackjack",
+    path: "/games/blackjack",
+    imageUrl: "https://via.placeholder.com/200",
+  },
+];
+
+const MenuItem = ({ name, imageUrl, path }: MenuItem) => {
+  return (
+    <Link href={path}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.5rem",
+          cursor: "pointer",
+          padding: "1rem",
+          transition: "all 0.2s",
+          borderRadius: "1rem",
+          ":hover": {
+            backgroundColor: "#a0a0a0b0",
+          },
+        }}
+      >
+        <Typography fontSize={24}>{name}</Typography>
+        <Box
+          sx={{
+            border: "0.25rem solid #aaa",
+            borderRadius: "100%",
+            aspectRatio: "1/1",
+            overflow: "hidden",
+          }}
+        >
+          <Image src={imageUrl} alt={name} width={200} height={200} />
+        </Box>
+      </Box>
+    </Link>
+  );
+};
+
+export default function Home() {
+  const [apiHealth, setApiHealth] = useState<boolean>(false);
+  const [dbHealth, setDbHealth] = useState<boolean>(false);
+
+  useMemo(() => {
+    const fetchData = async () => {
+      const { apiHealth, dbHealth } = await getData();
+      setApiHealth(apiHealth);
+      setDbHealth(dbHealth);
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Menu>
+      <Typography sx={{ textAlign: "center", fontSize: "32px" }}>
+        ¡Bienvenidx al casino de sades!
+      </Typography>
+      <List>
+        {menuItems.map((item) => (
+          <MenuItem key={item.name} {...item} />
+        ))}
+      </List>
+      <Box />
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: "1.5rem",
+          display: "flex",
+          flexDirection: "row",
+          gap: "1rem",
+        }}
+      >
         <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
           {apiHealth ? (
             <CheckCircleIcon color="success" />
@@ -98,6 +165,6 @@ export default async function Home() {
           </Typography>
         </Box>
       </Box>
-    </main>
+    </Menu>
   );
 }

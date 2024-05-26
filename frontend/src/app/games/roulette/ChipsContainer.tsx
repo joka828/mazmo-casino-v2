@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import Chip from "./ChipX";
+import Chip from "./Chip";
 
 interface Props {
   orientation: "horizontal" | "vertical";

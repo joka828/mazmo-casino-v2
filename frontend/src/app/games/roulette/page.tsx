@@ -6,7 +6,7 @@ import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
-import Chip from "./ChipX";
+import Chip from "./Chip";
 import Counter from "./Counter";
 import { BetPlace, RouletteState } from "../../../api/roulette/types";
 import { useRouletteState } from "@/api/roulette";

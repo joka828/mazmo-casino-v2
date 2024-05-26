@@ -9,11 +9,13 @@ const defaultChipColor = "#f77925";
 
 const ChipWrapper = styled(Box)<{ color: string }>`
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
   border-radius: 50%;
   background-color: ${({ color }) => color ?? defaultChipColor};
   overflow: hidden;
+  cursor: default;
 
   .line {
     position: absolute;
@@ -57,7 +59,6 @@ const Infill = styled(Box)<{ color: string }>`
   background-color: white;
   color: ${({ color }) => color ?? defaultChipColor};
   font-weight: 500;
-  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;

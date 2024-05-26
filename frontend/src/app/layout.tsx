@@ -6,7 +6,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
 
 import "./globals.css";
-import Provider from "@/api/QueryProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,11 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <main>
-          <Provider>
-            <AppRouterCacheProvider>
-              <ThemeProvider theme={theme}>{children}</ThemeProvider>
-            </AppRouterCacheProvider>
-          </Provider>
+          <AppRouterCacheProvider>
+            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          </AppRouterCacheProvider>
         </main>
       </body>
     </html>

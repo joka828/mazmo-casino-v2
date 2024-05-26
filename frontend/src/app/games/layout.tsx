@@ -33,9 +33,6 @@ export default function GamesLayout({
             </IconButton>
           </Link>
         </Tooltip>
-        <Typography variant="h1" fontWeight={400} fontSize={32}>
-          {titles[game]}
-        </Typography>
         <Box sx={{ width: "3rem" }} />
       </Row>
       {children}

@@ -1,22 +1,22 @@
 "use client";
-import Link from "next/link";
-import {
-  Box,
-  Button,
-  IconButton,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+
+import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
-import Chip from "./chip";
+import Chip from "./Chip";
+import Counter from "./Counter";
+import { BetPlace, RouletteState } from "../../../api/roulette/types";
+import { useRouletteState } from "@/api/roulette";
+import ChipsContainer from "./ChipsContainer";
 
 const Board = styled(Row)`
   justify-content: center;
   align-items: stretch;
   margin-top: 1rem;
+  position: relative;
 
   .MuiButton-root {
     color: #fafafa;
@@ -24,7 +24,15 @@ const Board = styled(Row)`
   }
 `;
 
-const RightColumn = styled(Column)`
+const PlayersWrapper = styled(Row)`
+  gap: 1rem;
+  position: absolute;
+  transform-origin: top right;
+  top: -4rem;
+  right: 0;
+`;
+
+const LeftColumn = styled(Column)`
   align-items: center;
 `;
 
@@ -36,7 +44,7 @@ const CounterWrapper = styled(Box)`
   padding: 0.5rem;
 `;
 
-const Counter = styled(Box)`
+const CounterText = styled(Box)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -118,10 +126,6 @@ const NumbersSection = styled(Row)`
   flex-wrap: wrap;
   width: 70%;
   min-width: 12rem;
-
-  &:last-of-type {
-    border-bottom-right-radius: 1rem;
-  }
 `;
 
 const Number = styled(Button)<{ index: number }>`
@@ -146,13 +150,17 @@ const Number = styled(Button)<{ index: number }>`
       ? "border-top-left-radius: 1rem; border-top-right-radius: 1rem;"
       : ""}
 
+  :last-of-type {
+    border-bottom-right-radius: 1rem;
+  }
+
   :hover {
     background-color: ${({ index }) =>
       index === 0
         ? "#00000060"
         : numberColors[index] === "red"
         ? "#ff8080"
-        : "#303030"};
+        : "#606060"};
   }
 `;
 
@@ -207,20 +215,85 @@ const chipColors = [
 ];
 
 export default function Roulette() {
+  const { setRouletteStatus, ...rouletteState } = useRouletteState();
+
+  const areBetsOpen = rouletteState.status === "openBets";
+
+  const onBet = (betPlace: BetPlace) => {
+    const userId = `${Math.floor(Math.random() * 1000)}`;
+    rouletteState.addBet(userId, betPlace, 1);
+    if (areBetsOpen) {
+      setRouletteStatus("inactive");
+      setTimeout(() => {
+        setRouletteStatus("openBets");
+      });
+    } else {
+      setRouletteStatus("openBets");
+    }
+  };
+
+  const chips = useMemo(
+    () =>
+      Object.keys(rouletteState.bets).reduce<
+        Record<string, Array<{ color: string; name: string; userId: string }>>
+      >((acc, placeId) => {
+        const placeBets = rouletteState.bets[placeId as BetPlace];
+        Object.keys(placeBets).forEach((userId) => {
+          const chip = {
+            userId,
+            color: rouletteState.users[userId].color,
+            name: rouletteState.users[userId].name,
+          };
+
+          acc[placeId as BetPlace] = acc[placeId as BetPlace] ?? [];
+          acc = {
+            ...acc,
+            [placeId]: [...acc[placeId as BetPlace], chip],
+          };
+        });
+
+        return acc;
+      }, {}),
+    [rouletteState.bets, rouletteState.users]
+  );
+
   return (
     <Board>
-      <RightColumn>
+      <PlayersWrapper>
+        {Object.keys(rouletteState.users).map((userId) => {
+          const user = rouletteState.users[userId];
+          return <Chip key={userId} color={user.color} name={user.name} />;
+        })}
+      </PlayersWrapper>
+      <LeftColumn>
         <CounterWrapper>
-          <Counter>
-            <span>0</span>
-          </Counter>
+          <CounterText>
+            {areBetsOpen ? (
+              <Counter
+                initialValue={5}
+                onCountingEnd={() => {
+                  rouletteState.finishRound();
+                }}
+              />
+            ) : (
+              "-"
+            )}
+          </CounterText>
         </CounterWrapper>
         <GroupsWrapper>
           <GroupsColumn>
-            <Halves>
+            <Halves
+              onClick={() => {
+                onBet("firstHalf");
+              }}
+            >
               <span className="rotate-text">1-18</span>
             </Halves>
-            <Halves>
+            <Halves
+              onClick={() => {
+                onBet("even");
+              }}
+            >
               <span className="rotate-text">Par</span>
             </Halves>
             <Halves
@@ -230,6 +303,9 @@ export default function Roulette() {
                   backgroundColor: "#ff8080",
                 },
               }}
+              onClick={() => {
+                onBet("red");
+              }}
             >
               <span className="rotate-text"></span>
             </Halves>
@@ -237,47 +313,82 @@ export default function Roulette() {
               sx={{
                 backgroundColor: "black",
                 ":hover": {
-                  backgroundColor: "#303030",
+                  backgroundColor: "#606060",
                 },
+              }}
+              onClick={() => {
+                onBet("black");
               }}
             >
               <span className="rotate-text"></span>
             </Halves>
-            <Halves>
+            <Halves
+              onClick={() => {
+                onBet("odd");
+              }}
+            >
               <span className="rotate-text">Impar</span>
             </Halves>
-            <Halves>
+            <Halves
+              onClick={() => {
+                onBet("secondHalf");
+              }}
+            >
               <span className="rotate-text">19-36</span>
             </Halves>
           </GroupsColumn>
           <GroupsColumn>
-            <Dozen>
+            <Dozen
+              onClick={() => {
+                onBet("firstDozen");
+              }}
+            >
               <span className="rotate-text">1-12</span>
             </Dozen>
-            <Dozen>
+            <Dozen
+              onClick={() => {
+                onBet("secondDozen");
+              }}
+            >
               <span className="rotate-text">13-24</span>
             </Dozen>
-            <Dozen>
+            <Dozen
+              onClick={() => {
+                onBet("thirdDozen");
+              }}
+            >
               <span className="rotate-text">25-36</span>
             </Dozen>
           </GroupsColumn>
         </GroupsWrapper>
-      </RightColumn>
+      </LeftColumn>
       <NumbersSection>
-        <Number index={0} sx={{ flexBasis: "100%", borderTopWidth: "0.3rem" }}>
+        <Number
+          index={0}
+          sx={{ flexBasis: "100%", borderTopWidth: "0.3rem" }}
+          onClick={() => {
+            onBet("0");
+          }}
+        >
           0
         </Number>
         {Array.from({ length: 36 }).map((_, index) => (
-          <Number variant="contained" key={index + 1} index={index + 1}>
+          <Number
+            variant="contained"
+            key={index + 1}
+            index={index + 1}
+            onClick={() => {
+              onBet(`${index + 1}` as BetPlace);
+            }}
+          >
+            <ChipsContainer
+              orientation="horizontal"
+              users={chips[`${index + 1}` as BetPlace] ?? []}
+            />
             <span>{index + 1}</span>
           </Number>
         ))}
       </NumbersSection>
-      <Column sx={{ position: "absolute" }}>
-        {chipColors.map((color) => (
-          <Chip key={color} color={color} name="Joka" />
-        ))}
-      </Column>
     </Board>
   );
 }

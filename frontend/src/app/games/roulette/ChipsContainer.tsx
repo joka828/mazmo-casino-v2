@@ -3,13 +3,14 @@ import Chip from "./Chip";
 
 interface Props {
   orientation: "horizontal" | "vertical";
-  users: Array<{ color: string; name: string; userId: string }>;
+  users?: Array<{ color: string; name: string; userId: string }>;
 }
 
 const Wrapper = styled("div")`
   height: 100%;
   width: 100%;
   position: absolute;
+  z-index: 10;
 
   .place-chip {
     position: absolute;
@@ -58,7 +59,7 @@ const Column = styled(Wrapper)`
 `;
 
 export default function ChipsContainer({ orientation, users }: Props) {
-  const chips = users.map((user) => (
+  const chips = users?.map((user) => (
     <Chip
       className="place-chip"
       key={user.userId}

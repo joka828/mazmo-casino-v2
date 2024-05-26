@@ -2,8 +2,7 @@
 import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, Button, styled, Tooltip } from "@mui/material";
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
 import Chip from "./Chip";
@@ -11,6 +10,8 @@ import Counter from "./Counter";
 import { BetPlace, RouletteState } from "../../../api/roulette/types";
 import { useRouletteState } from "@/api/roulette";
 import ChipsContainer from "./ChipsContainer";
+import { numberColors } from "@/helpers/constants";
+import askForSades from "@/helpers/sadesAsk";
 
 const Board = styled(Row)`
   justify-content: center;
@@ -29,7 +30,7 @@ const PlayersWrapper = styled(Row)`
   position: absolute;
   transform-origin: top right;
   top: -4rem;
-  right: 0;
+  right: 2rem;
 `;
 
 const LeftColumn = styled(Column)`
@@ -164,46 +165,6 @@ const Number = styled(Button)<{ index: number }>`
   }
 `;
 
-const numberColors: Record<number, string> = {
-  0: "green",
-  1: "red",
-  3: "red",
-  5: "red",
-  7: "red",
-  9: "red",
-  12: "red",
-  14: "red",
-  16: "red",
-  18: "red",
-  19: "red",
-  21: "red",
-  23: "red",
-  25: "red",
-  27: "red",
-  30: "red",
-  32: "red",
-  34: "red",
-  36: "red",
-  2: "black",
-  4: "black",
-  6: "black",
-  8: "black",
-  10: "black",
-  11: "black",
-  13: "black",
-  15: "black",
-  17: "black",
-  20: "black",
-  22: "black",
-  24: "black",
-  26: "black",
-  28: "black",
-  29: "black",
-  31: "black",
-  33: "black",
-  35: "black",
-};
-
 const chipColors = [
   "#000000",
   "#072475",
@@ -221,7 +182,9 @@ export default function Roulette() {
 
   const onBet = (betPlace: BetPlace) => {
     const userId = `${Math.floor(Math.random() * 1000)}`;
-    rouletteState.addBet(userId, betPlace, 1);
+    // rouletteState.addBet(userId, betPlace, 1);
+    askForSades.rouletteBet(betPlace);
+
     if (areBetsOpen) {
       setRouletteStatus("inactive");
       setTimeout(() => {
@@ -287,6 +250,7 @@ export default function Roulette() {
                 onBet("firstHalf");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.firstHalf} />
               <span className="rotate-text">1-18</span>
             </Halves>
             <Halves
@@ -294,6 +258,7 @@ export default function Roulette() {
                 onBet("even");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.even} />
               <span className="rotate-text">Par</span>
             </Halves>
             <Halves
@@ -307,6 +272,7 @@ export default function Roulette() {
                 onBet("red");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.red} />
               <span className="rotate-text"></span>
             </Halves>
             <Halves
@@ -320,6 +286,7 @@ export default function Roulette() {
                 onBet("black");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.black} />
               <span className="rotate-text"></span>
             </Halves>
             <Halves
@@ -327,6 +294,7 @@ export default function Roulette() {
                 onBet("odd");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.odd} />
               <span className="rotate-text">Impar</span>
             </Halves>
             <Halves
@@ -334,6 +302,7 @@ export default function Roulette() {
                 onBet("secondHalf");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.secondHalf} />
               <span className="rotate-text">19-36</span>
             </Halves>
           </GroupsColumn>
@@ -343,6 +312,7 @@ export default function Roulette() {
                 onBet("firstDozen");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.firstDozen} />
               <span className="rotate-text">1-12</span>
             </Dozen>
             <Dozen
@@ -350,6 +320,10 @@ export default function Roulette() {
                 onBet("secondDozen");
               }}
             >
+              <ChipsContainer
+                orientation="vertical"
+                users={chips.secondDozen}
+              />
               <span className="rotate-text">13-24</span>
             </Dozen>
             <Dozen
@@ -357,6 +331,7 @@ export default function Roulette() {
                 onBet("thirdDozen");
               }}
             >
+              <ChipsContainer orientation="vertical" users={chips.thirdDozen} />
               <span className="rotate-text">25-36</span>
             </Dozen>
           </GroupsColumn>
@@ -370,7 +345,7 @@ export default function Roulette() {
             onBet("0");
           }}
         >
-          0
+          <ChipsContainer orientation="horizontal" users={chips["0"]} />0
         </Number>
         {Array.from({ length: 36 }).map((_, index) => (
           <Number
@@ -383,7 +358,7 @@ export default function Roulette() {
           >
             <ChipsContainer
               orientation="horizontal"
-              users={chips[`${index + 1}` as BetPlace] ?? []}
+              users={chips[`${index + 1}` as BetPlace]}
             />
             <span>{index + 1}</span>
           </Number>

@@ -18,7 +18,9 @@ export default function Counter({
         return previousValue - 1;
       });
     }, 1000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return <span>{value}</span>;

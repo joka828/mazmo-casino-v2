@@ -1,0 +1,12 @@
+version: "2"
+authtoken: "1qJNOfecemk4GtuVM08gBIEPEhe_6hhcsiQvGQafSsDJJmS8H"
+
+tunnels:
+  app1:
+    proto: http
+    addr: 3000
+    domain: "frontend-mazmo-casino-v2.ngrok.app"
+  app2:
+    proto: http
+    addr: 8081
+    domain: "api-mazmo-casino-v2.ngrok.app"

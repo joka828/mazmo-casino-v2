@@ -53,8 +53,10 @@ export type BetPlace =
   | "36";
 
 export interface RouletteState {
-  spinId?: string;
+  currentRoundId?: string;
+  finishTimestamp?: string;
   users: Record<string, RouletteUser>;
   bets: Record<BetPlace, Record<RouletteUser["id"], number>>;
   status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
+  winnerNumber?: number;
 }

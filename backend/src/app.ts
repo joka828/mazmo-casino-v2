@@ -12,6 +12,8 @@ import {
 import { MAZMO_API_URL, ROULETTE_ID } from "./helpers/constants";
 import { getCasinoBalance } from "./helpers";
 import { printNonCasinoWelcome, printCasinoHelp } from "./helpers/sendMessages";
+import { initializeSocket } from "./helpers/socketManager";
+import { placeBet } from "./roulette";
 
 connectToDb();
 
@@ -34,8 +36,9 @@ const io = new Server(httpServer, {
   cors: {
     origin: [FRONTEND_URL, "http://localhost:3000"],
   },
-  /* options */
 });
+
+initializeSocket(io);
 
 io.on("connection", (socket) => {
   console.log("SOCKET CONNECTED");
@@ -99,11 +102,11 @@ app.post("/bets", async (req, res) => {
   if (transaction?.data) {
     if (transaction.data.gameId === ROULETTE_ID) {
       if (typeof transaction.data.placeId === "string") {
-        // await addBet(
-        //   transaction.from.owner.id,
-        //   transaction.amount,
-        //   transaction.data.placeId
-        // );
+        await placeBet({
+          userId: transaction.from.owner.id,
+          amount: transaction.amount,
+          placeId: transaction.data.placeId,
+        });
       }
     }
 

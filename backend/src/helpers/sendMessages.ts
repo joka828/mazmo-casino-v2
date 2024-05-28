@@ -36,9 +36,8 @@ export const printCasinoHelp = (userId, channelCredentials) => {
   const helpMessage = `:money_mouth_face::money_mouth_face::mazmo:**Bienvenide al casino de mazmo!**:mazmo::money_mouth_face::money_mouth_face:
       Acá vas a poder timbear todo lo que quieras hasta tener que vender fotos para ganarte de vuelta esos sades!\n\nEstos son los juegos disponibles:
       - **La ruleta!** ("**/ruleta ayuda**" para aprender a jugar).
-      - **Blackjack** (beta). Le faltan funcionalidades, pero se puede jugar y es muy divertido! ("**/bj ayuda**" para aprender a jugar).
-      - **Spankeá a tu sumi!**. Muy simple: pagás, clickeás culos y ganás puntos. Los 3 mejores puntajes del dia se llevan sades!
-      - **Sorteos** Todos los dias menos los Miércoles podés anotarte gratis a las 22hs (de Argentina) a los sorteos!
+      - **Blackjack** Proximamente!.
+      - **Sorteos** Proximamente vuelven los sorteos!
       \n\nCualquier inconveniente y sugerencias podés no escribirle a [Joka](https://mazmo.net/@joka)`;
   const noticeData = userId ? { toUserId: userId, type: "NOTICE" } : {};
 

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
@@ -241,20 +241,21 @@ export default function Roulette() {
 
   const areBetsOpen = rouletteState.status === "openBets";
 
+  useEffect(() => {});
+
   const onBet = (betPlace: BetPlace) => {
-    const userId = `${Math.floor(Math.random() * 1000)}`;
-    rouletteState.addBet(userId, betPlace, 1);
-    // askForSades.rouletteBet(betPlace);
+    // rouletteState.addBet(userId, betPlace, 1);
+    askForSades.rouletteBet(betPlace);
 
     // setRouletteStatus("spinning");
-    if (areBetsOpen) {
-      setRouletteStatus("inactive");
-      setTimeout(() => {
-        setRouletteStatus("openBets");
-      });
-    } else {
-      setRouletteStatus("openBets");
-    }
+    // if (areBetsOpen) {
+    //   setRouletteStatus("inactive");
+    //   setTimeout(() => {
+    //     setRouletteStatus("openBets");
+    //   });
+    // } else {
+    //   setRouletteStatus("openBets");
+    // }
   };
 
   const chips = useMemo(
@@ -301,9 +302,8 @@ export default function Roulette() {
             />
           ) : (
             <RouletteWheel
-              // winnerNumber={rouletteState.winnerNumber ?? 2}
-              winnerNumber={randomWinner}
-              onFinishSpin={() => rouletteState.finishRound()}
+              winnerNumber={rouletteState.winnerNumber ?? 2}
+              onFinishSpin={() => rouletteState.endRound()}
             />
           )}
         </HandOverlay>

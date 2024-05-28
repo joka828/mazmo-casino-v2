@@ -18,16 +18,16 @@ const askForSades = {
       to,
       fixed: false,
       amount: process.env.NODE_ENV === "production" ? 10 : 0.1,
-      max: 40,
+      max: 20,
       transferData: { gameId: "blackjack", type: "inscription" },
     });
     postMessage(message);
   },
-  blackJackDoubleDown: (value: number) => {
+  blackJackDoubleDown: (amount: number) => {
     const message = JSON.stringify({
       to,
       fixed: true,
-      amount: value,
+      amount,
       transferData: { gameId: "blackjack", type: "doubleDown" },
     });
     postMessage(message);

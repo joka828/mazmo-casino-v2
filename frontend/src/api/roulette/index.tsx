@@ -2,13 +2,19 @@ import { BetPlace, RouletteState, RouletteUser } from "./types";
 import { create } from "zustand";
 
 interface Methods {
-  finishRound: () => void;
   setRouletteStatus: (state: RouletteState["status"]) => void;
   addBet: (
-    userId: RouletteUser["id"],
     betPlace: BetPlace,
-    amount: number
+    amount: number,
+    user: {
+      id: string;
+      name: string;
+      color: string;
+    }
   ) => void;
+  startRound: (roundId: string, finishTimestamp: string) => void;
+  noMoreBets: (winnerNumber: number, winners: Array<{}>) => void;
+  endRound: () => void;
 }
 
 const initialBets = {
@@ -61,46 +67,42 @@ const initialBets = {
   "36": {},
 };
 
-const chipColors = [
-  "#000000",
-  "#072475",
-  "#13563B",
-  "#A46928",
-  "#E4A700",
-  "#C70000",
-  "#7B1414",
-];
-
 export const useRouletteState = create<RouletteState & Methods>((set) => {
   return {
     status: "inactive",
     users: {},
     bets: initialBets,
-    finishRound: () =>
-      set({ status: "inactive", users: {}, bets: initialBets }),
+    finishTimestamp: undefined,
+    currentRoundId: undefined,
+    winnerNumber: undefined,
+    startRound: (roundId: string, finishTimestamp: string) =>
+      set({ status: "openBets", finishTimestamp, currentRoundId: roundId }),
+    noMoreBets: (winnerNumber: number, winners: Array<{}>) =>
+      set({ status: "spinning", winnerNumber }),
+    endRound: () => set({ status: "inactive", users: {}, bets: initialBets }),
     setRouletteStatus: (status: RouletteState["status"]) => set({ status }),
-    addBet: (userId: RouletteUser["id"], betPlace: BetPlace, amount: number) =>
+    addBet: (
+      betPlace: BetPlace,
+      amount: number,
+      user: { id: string; color: string; name: string }
+    ) =>
       set((state) => {
         let newUser = undefined;
-        if (state.users[userId] === undefined) {
-          newUser = {
-            id: userId,
-            name: userId,
-            color: chipColors[Math.floor(Math.random() * 100) % 7],
-          };
+        if (state.users[user.id] === undefined) {
+          newUser = user;
         }
 
-        const newAmount = state.bets[betPlace][userId]
-          ? state.bets[betPlace][userId] + amount
+        const newAmount = state.bets[betPlace][user.id]
+          ? state.bets[betPlace][user.id] + amount
           : amount;
 
         return {
           bets: {
             ...state.bets,
-            [betPlace]: { ...state.bets[betPlace], [userId]: newAmount },
+            [betPlace]: { ...state.bets[betPlace], [user.id]: newAmount },
           },
           status: "openBets",
-          users: newUser ? { ...state.users, [userId]: newUser } : state.users,
+          users: newUser ? { ...state.users, [user.id]: newUser } : state.users,
         };
       }),
   };

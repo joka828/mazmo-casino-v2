@@ -76,7 +76,6 @@ const StyledImage = styled(Image)`
 const Board = styled(Row)`
   justify-content: center;
   align-items: stretch;
-  margin-top: 1rem;
   position: relative;
 
   .MuiButton-root {
@@ -101,7 +100,7 @@ const CounterWrapper = styled(Box)`
   display: flex;
   box-sizing: border-box;
   width: 100%;
-  height: 3.2rem;
+  height: 3rem;
   padding: 0.5rem;
 `;
 
@@ -195,7 +194,7 @@ const Number = styled(Button)<{ index: number }>`
   border-top-width: 0;
   border-right-width: ${({ index }) => (index % 3 === 0 ? 0.3 : 0)}rem;
   flex-basis: 33.3333%;
-  height: 3.2rem;
+  height: 3rem;
   font-size: 1.5rem;
   font-weight: 500;
   justify-content: center;
@@ -244,8 +243,8 @@ export default function Roulette() {
 
   const onBet = (betPlace: BetPlace) => {
     const userId = `${Math.floor(Math.random() * 1000)}`;
-    // rouletteState.addBet(userId, betPlace, 1);
-    askForSades.rouletteBet(betPlace);
+    rouletteState.addBet(userId, betPlace, 1);
+    // askForSades.rouletteBet(betPlace);
 
     // setRouletteStatus("spinning");
     if (areBetsOpen) {

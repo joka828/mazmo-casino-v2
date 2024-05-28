@@ -43,7 +43,6 @@ const Menu = styled(Box)`
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: 5rem;
   padding: 1rem;
   border: 0.25rem solid #ffd700;
   border-radius: 1rem;
@@ -52,7 +51,6 @@ const Menu = styled(Box)`
 const List = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   align-items: stretch;
   width: 100%;
 `;
@@ -70,7 +68,7 @@ const menuItems: MenuItem[] = [
     imageUrl: "/roulette-image.png",
   },
   {
-    name: "Blackjack",
+    name: "Blackjack...?",
     path: "/games/blackjack",
     imageUrl:
       "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA4L3JtNTU4LWVsZW1lbnRzLXdvcmQtMDEteC5qcGc.jpg",

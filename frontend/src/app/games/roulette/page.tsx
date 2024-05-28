@@ -87,9 +87,9 @@ const Board = styled(Row)`
 const PlayersWrapper = styled(Row)`
   gap: 1rem;
   position: absolute;
-  transform-origin: top right;
-  top: -4rem;
-  right: 2rem;
+  transform: translateY(-100%);
+  top: -0.5rem;
+  right: 0;
 `;
 
 const LeftColumn = styled(Column)`

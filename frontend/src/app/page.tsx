@@ -6,6 +6,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useMenuState } from "@/api/menus";
 
 interface Props {
   apiHealth: boolean;
@@ -113,6 +114,8 @@ export default function Home() {
   const [apiHealth, setApiHealth] = useState<boolean>(false);
   const [dbHealth, setDbHealth] = useState<boolean>(false);
 
+  const { socketStatus } = useMenuState();
+
   useMemo(() => {
     const fetchData = async () => {
       const { apiHealth, dbHealth } = await getData();
@@ -161,6 +164,16 @@ export default function Home() {
           )}
           <Typography>
             {dbHealth ? "Database is up and running!" : "Database is down :("}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+          {socketStatus ? (
+            <CheckCircleIcon color="success" />
+          ) : (
+            <CancelIcon color="error" />
+          )}
+          <Typography>
+            {socketStatus ? "Socket is up and running!" : "Socket is down :("}
           </Typography>
         </Box>
       </Box>

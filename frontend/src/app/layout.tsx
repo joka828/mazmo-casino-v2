@@ -9,6 +9,7 @@ import theme from "../theme";
 
 import "./globals.css";
 import { useEffect } from "react";
+import { useMenuState } from "@/api/menus";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,10 +23,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { socketStatus, setSocketStatus } = useMenuState();
+
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL ?? "");
 
     socket.on("connect", () => {
+      setSocketStatus(true);
       console.log("SOCKET CONNECTED", socket.id); // x8WIv7-mJelg7on_ALbx
     });
   }, []);

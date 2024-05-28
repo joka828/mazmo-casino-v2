@@ -49,11 +49,9 @@ const Pointer = styled(Image)`
 
 interface Props {
   onFinishSpin: () => void;
-  isWheelSpinning: boolean;
   winnerNumber: number;
 }
 
-// 1. Configure the wheel's properties:
 const wheelProps = {
   items: data,
   itemLabelRotation: 90,
@@ -67,16 +65,9 @@ const wheelProps = {
   borderWidth: 10,
   lineColor: "#E4A700",
   lineWidth: 2,
-  // itemLabelBaselineOffset: 1,
 };
 
-// 2. Decide where you want it to go:
-
-const RouletteWheel = ({
-  onFinishSpin,
-  isWheelSpinning: spinning,
-  winnerNumber,
-}: Props) => {
+const RouletteWheel = ({ onFinishSpin, winnerNumber }: Props) => {
   const winnerIndex = useMemo(
     () => getWinnerIndex(winnerNumber),
     [winnerNumber]

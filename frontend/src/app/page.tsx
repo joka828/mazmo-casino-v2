@@ -67,12 +67,13 @@ const menuItems: MenuItem[] = [
   {
     name: "Ruleta",
     path: "/games/roulette",
-    imageUrl: "https://via.placeholder.com/200",
+    imageUrl: "/roulette-image.png",
   },
   {
     name: "Blackjack",
     path: "/games/blackjack",
-    imageUrl: "https://via.placeholder.com/200",
+    imageUrl:
+      "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA4L3JtNTU4LWVsZW1lbnRzLXdvcmQtMDEteC5qcGc.jpg",
   },
 ];
 
@@ -90,14 +91,14 @@ const MenuItem = ({ name, imageUrl, path }: MenuItem) => {
           transition: "all 0.2s",
           borderRadius: "1rem",
           ":hover": {
-            backgroundColor: "#a0a0a0b0",
+            backgroundColor: "#d0d0d080",
           },
         }}
       >
         <Typography fontSize={24}>{name}</Typography>
         <Box
           sx={{
-            border: "0.25rem solid #aaa",
+            border: "0.25rem solid #ffd700",
             borderRadius: "100%",
             aspectRatio: "1/1",
             overflow: "hidden",

@@ -166,7 +166,7 @@ const Group = styled(Button)`
   & .rotate-text {
     position: absolute;
     text-align: center;
-    min-width: 4rem;
+    min-width: 5rem;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(90deg);
@@ -304,7 +304,6 @@ export default function Roulette() {
             <RouletteWheel
               // winnerNumber={rouletteState.winnerNumber ?? 2}
               winnerNumber={randomWinner}
-              isWheelSpinning={true}
               onFinishSpin={() => rouletteState.finishRound()}
             />
           )}

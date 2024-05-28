@@ -1,4 +1,6 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import bodyParser from "body-parser";
 import {
@@ -21,16 +23,23 @@ const port = process.env.PORT ?? 8081;
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
 const corsOptions = {
-  origin: [MAZMO_API_URL, FRONTEND_URL],
+  origin: [MAZMO_API_URL, FRONTEND_URL, "http://localhost:3000"],
 };
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.get("/", (req, res) => {
-  res.send(
-    `Hello World! ${process.env.FRONTEND_URL ?? "Error reading FRONTEND_URL"}`
-  );
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: [FRONTEND_URL, "http://localhost:3000"],
+  },
+  /* options */
+});
+
+io.on("connection", (socket) => {
+  console.log("SOCKET CONNECTED");
+  // ...
 });
 
 app.get("/health", (req, res) => {
@@ -155,6 +164,6 @@ app.get("/bot-balance", async (req, res) => {
   res.send("OK");
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });

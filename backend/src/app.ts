@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-
+import bodyParser from "body-parser";
 import {
   connectToDb,
   getDatabaseClient,
@@ -25,6 +25,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(bodyParser.json({ limit: "50mb" }));
 
 app.get("/", (req, res) => {
   res.send(
@@ -43,6 +44,17 @@ app.get("/mongodb-health", async (req, res) => {
     res.status(502);
     res.send("ERROR");
   }
+});
+
+app.post("/message", async (req, res) => {
+  if (req.headers["bot-secret"] !== process.env.MAZMO_BOT_SECRET)
+    return res.status(401).send("UNAUTHORIZED");
+
+  console.log("============= MESSAGE =============");
+  console.log(req.body);
+  console.log("============= MESSAGE =============");
+
+  res.send("OK");
 });
 
 app.post("/joined", (req, res) => {
@@ -71,9 +83,9 @@ app.post("/bets", async (req, res) => {
 
   const { transaction } = req.body || {};
 
-  console.log("================== BET ==================");
+  console.log("================== TRANSACTION ==================");
   console.log(req.body);
-  console.log("================== BET ==================");
+  console.log("================== TRANSACTION ==================");
 
   if (transaction?.data) {
     if (transaction.data.gameId === ROULETTE_ID) {

@@ -56,5 +56,5 @@ export interface RouletteState {
   spinId?: string;
   users: Record<string, RouletteUser>;
   bets: Record<BetPlace, Record<RouletteUser["id"], number>>;
-  status: "inactive" | "openBets" | "spinning" | "finished";
+  status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
 }

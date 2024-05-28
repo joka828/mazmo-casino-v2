@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Box, Button, styled, Tooltip } from "@mui/material";
+import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
 import Chip from "./Chip";
@@ -12,6 +12,66 @@ import { useRouletteState } from "@/api/roulette";
 import ChipsContainer from "./ChipsContainer";
 import { numberColors } from "@/helpers/constants";
 import askForSades from "@/helpers/sadesAsk";
+import Image from "next/image";
+import RouletteWheel from "./Wheel";
+
+const HandOverlay = styled(Box)`
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #00000080;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const NoMoreBetsText = styled(Typography)`
+  background-color: #000;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+
+  margin-top: 4rem;
+  font-size: 2.5rem;
+  font-weight: 500;
+`;
+
+const StyledImage = styled(Image)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: rotate(-90deg);
+
+  animation: noVaMas 2.5s linear 0s 1 normal none;
+
+  @keyframes noVaMas {
+    0% {
+      opacity: 0;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    30% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateY(calc(50vh - 50%)) rotate(-90deg);
+    }
+
+    70% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(calc(100vh - 50%)) rotate(-90deg);
+    }
+  }
+`;
 
 const Board = styled(Row)`
   justify-content: center;
@@ -175,6 +235,8 @@ const chipColors = [
   "#7B1414",
 ];
 
+const randomWinner = Math.floor(Math.random() * 37);
+
 export default function Roulette() {
   const { setRouletteStatus, ...rouletteState } = useRouletteState();
 
@@ -185,6 +247,7 @@ export default function Roulette() {
     // rouletteState.addBet(userId, betPlace, 1);
     askForSades.rouletteBet(betPlace);
 
+    // setRouletteStatus("spinning");
     if (areBetsOpen) {
       setRouletteStatus("inactive");
       setTimeout(() => {
@@ -222,6 +285,31 @@ export default function Roulette() {
 
   return (
     <Board>
+      {(rouletteState.status === "noMoreBets" ||
+        rouletteState.status === "spinning") && (
+        <HandOverlay>
+          <NoMoreBetsText>¡No va mas!</NoMoreBetsText>
+          {rouletteState.status === "noMoreBets" ? (
+            <StyledImage
+              src="/hand.svg"
+              alt="croupier hand"
+              width={400}
+              height={500}
+              onAnimationEnd={() => {
+                // 2500ms
+                setRouletteStatus("spinning");
+              }}
+            />
+          ) : (
+            <RouletteWheel
+              // winnerNumber={rouletteState.winnerNumber ?? 2}
+              winnerNumber={randomWinner}
+              isWheelSpinning={true}
+              onFinishSpin={() => rouletteState.finishRound()}
+            />
+          )}
+        </HandOverlay>
+      )}
       <PlayersWrapper>
         {Object.keys(rouletteState.users).map((userId) => {
           const user = rouletteState.users[userId];
@@ -233,9 +321,9 @@ export default function Roulette() {
           <CounterText>
             {areBetsOpen ? (
               <Counter
-                initialValue={5}
+                initialValue={3}
                 onCountingEnd={() => {
-                  rouletteState.finishRound();
+                  setRouletteStatus("noMoreBets");
                 }}
               />
             ) : (

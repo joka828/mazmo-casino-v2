@@ -81,7 +81,6 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     setRouletteStatus: (status: RouletteState["status"]) => set({ status }),
     addBet: (userId: RouletteUser["id"], betPlace: BetPlace, amount: number) =>
       set((state) => {
-        console.log("adding bet", userId, betPlace, amount);
         let newUser = undefined;
         if (state.users[userId] === undefined) {
           newUser = {

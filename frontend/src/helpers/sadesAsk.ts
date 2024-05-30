@@ -32,7 +32,7 @@ const askForSades = {
     });
     postMessage(message);
   },
-  rouletteBet: (placeId: BetPlace) => {
+  rouletteBet: (placeId: BetPlace, roundId?: string) => {
     const placeMultiplier = betPlacesInfo[placeId].multiplier;
     const max = 90 / placeMultiplier;
     const message = JSON.stringify({
@@ -40,7 +40,7 @@ const askForSades = {
       amount: process.env.NODE_ENV === "production" ? 2 : 0.01,
       max,
       fixed: false,
-      transferData: { gameId: "roulette", type: "bet", placeId },
+      transferData: { gameId: "roulette", type: "bet", placeId, roundId },
     });
     postMessage(message);
   },

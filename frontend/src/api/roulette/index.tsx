@@ -93,7 +93,13 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     noMoreBets: (winnerNumber: number, winners: RouletteState["winners"]) =>
       set({ status: "spinning", winnerNumber, winners }),
     startSpinning: () => set({ status: "spinning" }),
-    endRound: () => set({ status: "finished", users: {}, bets: initialBets }),
+    endRound: () =>
+      set({
+        currentRoundId: undefined,
+        status: "finished",
+        users: {},
+        bets: initialBets,
+      }),
     setRouletteStatus: (status: RouletteState["status"]) => set({ status }),
     addBet: (betPlace: BetPlace, amount: number, user: RouletteUser) =>
       set((state) => {

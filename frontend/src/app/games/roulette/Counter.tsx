@@ -5,7 +5,7 @@ export default function Counter({
   onCountingStart = () => {},
   onCountingEnd = () => {},
 }) {
-  const [value, setValue] = useState(Math.floor(initialValue / 1000));
+  const [value, setValue] = useState(Math.round(initialValue / 1000));
 
   useEffect(() => {
     onCountingStart();

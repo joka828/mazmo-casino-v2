@@ -258,7 +258,7 @@ export default function Roulette() {
   const areBetsOpen = rouletteState.status === "openBets";
 
   const onBetClick = (betPlace: BetPlace) => {
-    askForSades.rouletteBet(betPlace);
+    askForSades.rouletteBet(betPlace, rouletteState.currentRoundId);
   };
 
   useEffect(() => {

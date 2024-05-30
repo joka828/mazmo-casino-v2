@@ -13,7 +13,11 @@ export const getCasinoBalance = async () => {
   return balance;
 };
 
-export const transferToUser = (userId, amount, concept) => {
+export const transferToUser = (
+  userId: string,
+  amount: number,
+  concept?: string
+) => {
   return axios({
     url: `${MAZMO_API_URL}/bank/transactions`,
     method: "POST",

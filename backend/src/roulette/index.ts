@@ -7,9 +7,10 @@ import {
 import { BetPlace, RouletteRound, RouletteState, RouletteUser } from "./types";
 import { v4 as uuid } from "uuid";
 import { shuffle } from "lodash";
-import { delay, getUser } from "../helpers";
+import { delay, getUser, transferToUser } from "../helpers";
 import { getDatabaseClient, getDatabaseCollection } from "../helpers/dbManager";
 import { betPlacesInfo, numberColors } from "./constants";
+import { sendMessageToGameChannel } from "../helpers/channelMessages";
 
 const ROUND_TIME = 20000;
 
@@ -36,11 +37,44 @@ const getCurrentRound = async () => {
   return currentRound;
 };
 
+const getRound = async (roundId: string) => {
+  const collection = await getDatabaseCollection("roulette");
+
+  const currentRound = await collection.findOne<RouletteRound>({
+    id: roundId,
+  });
+
+  return currentRound;
+};
+
 export const placeBet = async (bet: {
   placeId: BetPlace;
   amount: number;
   userId: string;
+  roundId?: string;
 }) => {
+  let currentRound = await getCurrentRound();
+  let currentRoundId = currentRound?.id;
+
+  if (bet.roundId) {
+    currentRoundId = bet.roundId;
+    currentRound = await getRound(bet.roundId);
+  } else {
+    currentRound = await getCurrentRound();
+    currentRoundId = currentRound?.id;
+  }
+
+  if (bet.roundId && currentRound?.status === "finished") {
+    await transferToUser(bet.userId, bet.amount);
+    sendMessageToGameChannel({
+      gameId: "roulette",
+      message: `La ronda ya terminó, tus ${bet.amount} sades han sido devueltos.`,
+      to: parseInt(bet.userId),
+    });
+
+    return;
+  }
+
   const mazmoUser = await getUser(bet.userId);
 
   const user = {
@@ -51,11 +85,6 @@ export const placeBet = async (bet: {
       ? mazmoUser.avatar["150w"].jpeg
       : mazmoUser.avatar.default,
   };
-
-  const currentRound = await getCurrentRound();
-  const currentRoundId = currentRound?.id;
-
-  const testTimestamp = Date.now();
 
   if (!currentRoundId) {
     await createRound({

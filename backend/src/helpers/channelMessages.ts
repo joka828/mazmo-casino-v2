@@ -1,10 +1,70 @@
 import axios from "axios";
 import { CASINO_PROD_CHANNEL_ID, MAZMO_API_URL } from "./constants";
+import { getDatabaseCollection } from "./dbManager";
 
-export const sendMessageToChannel: (
-  message: { rawContent: string; type?: string; toUserId?: string },
-  channelCredentials: { key: string; id: string }
-) => Promise<unknown> = (message, channelCredentials) => {
+export interface ChannelCredentials {
+  id: string;
+  key: string;
+}
+
+export const getChannelCredentials: (
+  gameId: string
+) => Promise<ChannelCredentials> = async (gameId: string) => {
+  const collection = await getDatabaseCollection("chat-credentials");
+
+  const channelCredentials = await collection.findOne<ChannelCredentials>({
+    gameId,
+  });
+
+  return channelCredentials;
+};
+
+export const setChannelCredentials = async ({
+  gameId,
+  id,
+  key,
+}: {
+  gameId: string;
+  id: string;
+  key: string;
+}) => {
+  const collection = await getDatabaseCollection("chat-credentials");
+
+  await collection.updateOne(
+    { gameId },
+    { $set: { key, id } },
+    { upsert: true }
+  );
+};
+
+export const sendMessageToGameChannel = async ({
+  message,
+  to,
+  gameId,
+}: {
+  message: string;
+  to?: number;
+  gameId: string;
+}) => {
+  const channelCredentials = await getChannelCredentials(gameId);
+
+  if (!channelCredentials) {
+    console.error("ERROR: NO CHANNEL SET");
+    return;
+  }
+
+  await sendMessageToChannel({ message, to, channelCredentials });
+};
+
+export const sendMessageToChannel = async ({
+  message,
+  to,
+  channelCredentials,
+}: {
+  message: string;
+  to?: number;
+  channelCredentials: ChannelCredentials;
+}) => {
   if (!channelCredentials) {
     return new Promise((resolve, reject) => {
       console.error("ERROR: NO CHANNEL SET");
@@ -12,11 +72,15 @@ export const sendMessageToChannel: (
     });
   }
 
+  const messageData = {
+    rawContent: message,
+    ...(to ? { toUserId: to, type: "NOTICE" } : {}),
+  };
   return axios({
     url: `${MAZMO_API_URL}/chat/channels/${channelCredentials.id}/messages`,
     method: "POST",
     headers: { "Bot-Key": channelCredentials.key },
-    data: message,
+    data: messageData,
   }).catch((e) => {
     // If 504, retry. That messages api ain't helping right now.
     if (e.response && e.response.status === 504) {
@@ -24,7 +88,7 @@ export const sendMessageToChannel: (
         url: `${MAZMO_API_URL}/chat/channels/${channelCredentials.id}/messages`,
         method: "POST",
         headers: { "Bot-Key": channelCredentials.key },
-        data: message,
+        data: messageData,
       });
     }
 
@@ -39,12 +103,12 @@ export const printCasinoHelp = (userId, channelCredentials) => {
       - **Blackjack** Proximamente!.
       - **Sorteos** Proximamente vuelven los sorteos!
       \n\nCualquier inconveniente y sugerencias podés no escribirle a [Joka](https://mazmo.net/@joka)`;
-  const noticeData = userId ? { toUserId: userId, type: "NOTICE" } : {};
 
-  sendMessageToChannel(
-    { rawContent: helpMessage, ...noticeData },
-    channelCredentials
-  );
+  sendMessageToChannel({
+    message: helpMessage,
+    to: userId,
+    channelCredentials,
+  });
 };
 
 export const printNonCasinoWelcome = (userId, channelCredentials) => {
@@ -53,10 +117,10 @@ export const printNonCasinoWelcome = (userId, channelCredentials) => {
       :money_mouth_face:Te espero por allí para jugar!:money_mouth_face:
       \n\nCualquier pregunta o sugerencia del casino podés no escribirle a [Joka](https://mazmo.net/@joka)
     `;
-  const noticeData = { toUserId: userId, type: "NOTICE" };
 
-  sendMessageToChannel(
-    { rawContent: helpMessage, ...noticeData },
-    channelCredentials
-  );
+  sendMessageToChannel({
+    message: helpMessage,
+    to: userId,
+    channelCredentials,
+  });
 };

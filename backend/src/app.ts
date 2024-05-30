@@ -9,9 +9,14 @@ import {
   getIsDatabaseConnected,
 } from "./helpers/dbManager";
 
-import { MAZMO_API_URL, ROULETTE_ID } from "./helpers/constants";
+import { CASINO_ID, MAZMO_API_URL, ROULETTE_ID } from "./helpers/constants";
 import { getCasinoBalance } from "./helpers";
-import { printNonCasinoWelcome, printCasinoHelp } from "./helpers/sendMessages";
+import {
+  printNonCasinoWelcome,
+  printCasinoHelp,
+  setChannelCredentials,
+  sendMessageToGameChannel,
+} from "./helpers/channelMessages";
 import { initializeSocket } from "./helpers/socketManager";
 import { getRouletteStatus, placeBet } from "./roulette";
 
@@ -65,6 +70,38 @@ app.post("/message", async (req, res) => {
   console.log("============= MESSAGE =============");
   console.log(req.body);
   console.log("============= MESSAGE =============");
+  const messageContent: string = req.body.message.payload.rawContent;
+  if (!messageContent) return res.status(204).send("Nothing to do");
+  const parts = messageContent.toLowerCase().split(" ");
+
+  const channelKey = req.body.key;
+  const channelId = req.body.message.channel.id;
+  const userId = req.body.message.author.id;
+  const isAdmin = userId === 91644;
+
+  if (isAdmin) {
+    if (parts[0] === "/casino") {
+      if (parts[1] === "set" && parts[2] === "credentials") {
+        await setChannelCredentials({
+          gameId: ROULETTE_ID,
+          id: channelId,
+          key: channelKey,
+        });
+
+        await setChannelCredentials({
+          gameId: CASINO_ID,
+          id: channelId,
+          key: channelKey,
+        });
+
+        await sendMessageToGameChannel({
+          message: "Credentials set",
+          gameId: ROULETTE_ID,
+          to: userId,
+        });
+      }
+    }
+  }
 
   return res.status(200).send("OK");
 });
@@ -108,6 +145,7 @@ app.post("/bets", async (req, res) => {
           userId: transaction.from.owner.id,
           amount: transaction.amount,
           placeId: transaction.data.placeId,
+          roundId: transaction.data.roundId,
         });
       }
     }

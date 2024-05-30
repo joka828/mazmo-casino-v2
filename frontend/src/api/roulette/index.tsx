@@ -69,7 +69,7 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     finishTimestamp: undefined,
     currentRoundId: undefined,
     winnerNumber: undefined,
-    winners: [],
+    winners: {},
     initializeData: (initialData: RouletteRound) => {
       if (initialData.id) {
         set({

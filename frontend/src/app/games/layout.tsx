@@ -29,7 +29,7 @@ export default function GamesLayout({
         <Tooltip title="Volver al menú" placement="right">
           <Link href="/">
             <IconButton size="large">
-              <ArrowBackIcon fontSize="inherit" color="primary" />
+              <ArrowBackIcon fontSize="inherit" color="secondary" />
             </IconButton>
           </Link>
         </Tooltip>

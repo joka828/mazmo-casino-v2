@@ -2,6 +2,7 @@ export interface RouletteUser {
   id: string;
   name: string;
   color: string;
+  avatar: string;
 }
 
 export type BetPlace =
@@ -53,8 +54,21 @@ export type BetPlace =
   | "36";
 
 export interface RouletteState {
-  spinId?: string;
+  currentRoundId?: string;
+  finishTimestamp?: number;
   users: Record<string, RouletteUser>;
   bets: Record<BetPlace, Record<RouletteUser["id"], number>>;
-  status: "inactive" | "openBets" | "spinning" | "finished";
+  status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
+  winners?: Record<string, number>;
+  winnerNumber?: number;
+}
+
+export interface RouletteRound {
+  id: string;
+  finishTimestamp: number;
+  status: RouletteState["status"];
+  bets: RouletteState["bets"];
+  users: RouletteState["users"];
+  winners?: RouletteState["winners"];
+  winnerNumber?: number;
 }

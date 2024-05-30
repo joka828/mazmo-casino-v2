@@ -33,3 +33,8 @@ export const getIsDatabaseConnected = async () => {
 export const getDatabaseClient = () => {
   return client;
 };
+
+export const getDatabaseCollection = async (collectionName: string) => {
+  const db = client.db(process.env.DB_NAME);
+  return db.collection(collectionName);
+};

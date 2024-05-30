@@ -7,17 +7,15 @@ import {
   connectToDb,
   getDatabaseClient,
   getIsDatabaseConnected,
-} from "./databaseConnection";
+} from "./helpers/dbManager";
 
 import { MAZMO_API_URL, ROULETTE_ID } from "./helpers/constants";
 import { getCasinoBalance } from "./helpers";
 import { printNonCasinoWelcome, printCasinoHelp } from "./helpers/sendMessages";
 import { initializeSocket } from "./helpers/socketManager";
-import { placeBet } from "./roulette";
+import { getRouletteStatus, placeBet } from "./roulette";
 
 connectToDb();
-
-const mongodbClient = getDatabaseClient();
 
 const app = express();
 const port = process.env.PORT ?? 8081;
@@ -40,9 +38,11 @@ const io = new Server(httpServer, {
 
 initializeSocket(io);
 
-io.on("connection", (socket) => {
-  console.log("SOCKET CONNECTED");
-  // ...
+io.on("connect", async (socket) => {
+  const rouletteStatus = await getRouletteStatus();
+  socket.emit("initialize", {
+    roulette: rouletteStatus,
+  });
 });
 
 app.get("/health", (req, res) => {
@@ -66,7 +66,7 @@ app.post("/message", async (req, res) => {
   console.log(req.body);
   console.log("============= MESSAGE =============");
 
-  res.send("OK");
+  return res.status(200).send("OK");
 });
 
 app.post("/joined", (req, res) => {
@@ -87,6 +87,8 @@ app.post("/joined", (req, res) => {
   } else {
     printNonCasinoWelcome(req.body.message.author.id, channelCredentials);
   }
+
+  return res.status(200).send("OK");
 });
 
 app.post("/bets", async (req, res) => {

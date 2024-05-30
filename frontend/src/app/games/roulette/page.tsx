@@ -1,19 +1,42 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useShallow } from "zustand/react/shallow";
 
-import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  styled,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
+
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
 import Chip from "./Chip";
 import Counter from "./Counter";
-import { BetPlace, RouletteState } from "../../../api/roulette/types";
+import { BetPlace } from "../../../api/roulette/types";
 import { useRouletteState } from "@/api/roulette";
 import ChipsContainer from "./ChipsContainer";
 import { numberColors } from "@/helpers/constants";
 import askForSades from "@/helpers/sadesAsk";
 import Image from "next/image";
 import RouletteWheel from "./Wheel";
+
+const Overlay = styled(Box)`
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000a0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 const HandOverlay = styled(Box)`
   position: fixed;
@@ -77,11 +100,6 @@ const Board = styled(Row)`
   justify-content: center;
   align-items: stretch;
   position: relative;
-
-  .MuiButton-root {
-    color: #fafafa;
-    box-shadow: none;
-  }
 `;
 
 const PlayersWrapper = styled(Row)`
@@ -124,6 +142,11 @@ const GroupsWrapper = styled(Row)`
   flex-basis: 100%;
   align-items: center;
   justify-content: center;
+
+  .MuiButton-root {
+    color: #fafafa;
+    box-shadow: none;
+  }
 `;
 
 const GroupsColumn = styled(Column)`
@@ -194,11 +217,13 @@ const Number = styled(Button)<{ index: number }>`
   border-top-width: 0;
   border-right-width: ${({ index }) => (index % 3 === 0 ? 0.3 : 0)}rem;
   flex-basis: 33.3333%;
-  height: 3rem;
+  min-height: 3rem;
   font-size: 1.5rem;
   font-weight: 500;
   justify-content: center;
   cursor: pointer;
+  color: #fafafa;
+  box-shadow: none;
 
   background-color: ${({ index }) =>
     index === 0 ? "" : numberColors[index] === "red" ? "#ff0000" : "#000000"};
@@ -224,39 +249,29 @@ const Number = styled(Button)<{ index: number }>`
   }
 `;
 
-const chipColors = [
-  "#000000",
-  "#072475",
-  "#13563B",
-  "#A46928",
-  "#E4A700",
-  "#C70000",
-  "#7B1414",
-];
-
-const randomWinner = Math.floor(Math.random() * 37);
-
 export default function Roulette() {
   const { setRouletteStatus, ...rouletteState } = useRouletteState();
+  const [showResults, setShowResults] = useState(false);
 
   const areBetsOpen = rouletteState.status === "openBets";
 
-  useEffect(() => {});
-
-  const onBet = (betPlace: BetPlace) => {
-    // rouletteState.addBet(userId, betPlace, 1);
+  const onBetClick = (betPlace: BetPlace) => {
     askForSades.rouletteBet(betPlace);
-
-    // setRouletteStatus("spinning");
-    // if (areBetsOpen) {
-    //   setRouletteStatus("inactive");
-    //   setTimeout(() => {
-    //     setRouletteStatus("openBets");
-    //   });
-    // } else {
-    //   setRouletteStatus("openBets");
-    // }
   };
+
+  useEffect(() => {
+    if (rouletteState.status === "finished") {
+      setShowResults(true);
+    }
+  }, [rouletteState.status]);
+
+  const timeLeft = useMemo(() => {
+    if (areBetsOpen && rouletteState.finishTimestamp) {
+      return rouletteState.finishTimestamp - Date.now();
+    }
+
+    return undefined;
+  }, [areBetsOpen, rouletteState.finishTimestamp]);
 
   const chips = useMemo(
     () =>
@@ -285,6 +300,35 @@ export default function Roulette() {
 
   return (
     <Board>
+      {showResults && (
+        <Overlay>
+          <Typography
+            sx={{
+              backgroundColor: "#fafafa",
+              borderRadius: "1rem",
+              color: "#000",
+              width: "90%",
+              padding: "0.5rem",
+            }}
+            fontSize={40}
+            fontWeight={500}
+            textAlign="center"
+          >
+            ¡El número ganador es el {rouletteState.winnerNumber}!
+          </Typography>
+          <Button
+            sx={{ marginTop: "1rem" }}
+            onClick={() => {
+              setShowResults(false);
+            }}
+            color="secondary"
+            variant="contained"
+            size="large"
+          >
+            Continuar
+          </Button>
+        </Overlay>
+      )}
       {(rouletteState.status === "noMoreBets" ||
         rouletteState.status === "spinning") && (
         <HandOverlay>
@@ -296,7 +340,6 @@ export default function Roulette() {
               width={400}
               height={500}
               onAnimationEnd={() => {
-                // 2500ms
                 setRouletteStatus("spinning");
               }}
             />
@@ -317,13 +360,8 @@ export default function Roulette() {
       <LeftColumn>
         <CounterWrapper>
           <CounterText>
-            {areBetsOpen ? (
-              <Counter
-                initialValue={3}
-                onCountingEnd={() => {
-                  setRouletteStatus("noMoreBets");
-                }}
-              />
+            {areBetsOpen && timeLeft ? (
+              <Counter initialValue={timeLeft} />
             ) : (
               "-"
             )}
@@ -333,7 +371,7 @@ export default function Roulette() {
           <GroupsColumn>
             <Halves
               onClick={() => {
-                onBet("firstHalf");
+                onBetClick("firstHalf");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.firstHalf} />
@@ -341,7 +379,7 @@ export default function Roulette() {
             </Halves>
             <Halves
               onClick={() => {
-                onBet("even");
+                onBetClick("even");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.even} />
@@ -355,7 +393,7 @@ export default function Roulette() {
                 },
               }}
               onClick={() => {
-                onBet("red");
+                onBetClick("red");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.red} />
@@ -369,7 +407,7 @@ export default function Roulette() {
                 },
               }}
               onClick={() => {
-                onBet("black");
+                onBetClick("black");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.black} />
@@ -377,7 +415,7 @@ export default function Roulette() {
             </Halves>
             <Halves
               onClick={() => {
-                onBet("odd");
+                onBetClick("odd");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.odd} />
@@ -385,7 +423,7 @@ export default function Roulette() {
             </Halves>
             <Halves
               onClick={() => {
-                onBet("secondHalf");
+                onBetClick("secondHalf");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.secondHalf} />
@@ -395,7 +433,7 @@ export default function Roulette() {
           <GroupsColumn>
             <Dozen
               onClick={() => {
-                onBet("firstDozen");
+                onBetClick("firstDozen");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.firstDozen} />
@@ -403,7 +441,7 @@ export default function Roulette() {
             </Dozen>
             <Dozen
               onClick={() => {
-                onBet("secondDozen");
+                onBetClick("secondDozen");
               }}
             >
               <ChipsContainer
@@ -414,7 +452,7 @@ export default function Roulette() {
             </Dozen>
             <Dozen
               onClick={() => {
-                onBet("thirdDozen");
+                onBetClick("thirdDozen");
               }}
             >
               <ChipsContainer orientation="vertical" users={chips.thirdDozen} />
@@ -426,9 +464,9 @@ export default function Roulette() {
       <NumbersSection>
         <Number
           index={0}
-          sx={{ flexBasis: "100%", borderTopWidth: "0.3rem" }}
+          sx={{ flexBasis: "100%", borderTopWidth: "0.3rem", height: "3rem" }}
           onClick={() => {
-            onBet("0");
+            onBetClick("0");
           }}
         >
           <ChipsContainer orientation="horizontal" users={chips["0"]} />0
@@ -439,7 +477,7 @@ export default function Roulette() {
             key={index + 1}
             index={index + 1}
             onClick={() => {
-              onBet(`${index + 1}` as BetPlace);
+              onBetClick(`${index + 1}` as BetPlace);
             }}
           >
             <ChipsContainer

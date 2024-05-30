@@ -65,3 +65,8 @@ export const getUsers = async (userIds) => {
   );
   return users;
 };
+
+export const delay = (miliseconds) =>
+  new Promise(function (resolve) {
+    setTimeout(resolve, miliseconds);
+  });

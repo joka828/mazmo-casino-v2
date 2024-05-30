@@ -268,12 +268,6 @@ export default function Roulette() {
   }, [rouletteState.status]);
 
   const timeLeft = useMemo(() => {
-    console.log(
-      "Calculating time left",
-      areBetsOpen,
-      rouletteState.finishTimestamp,
-      (rouletteState.finishTimestamp ?? 0) - Date.now()
-    );
     if (areBetsOpen && rouletteState.finishTimestamp) {
       return rouletteState.finishTimestamp - Date.now();
     }
@@ -324,13 +318,15 @@ export default function Roulette() {
           >
             ¡El número ganador es el {rouletteState.winnerNumber}!
           </Typography>
-          <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
-            {rouletteState.winners?.[currentUserId ?? ""]
-              ? `💸 Ganaste ${rouletteState.winners[
-                  currentUserId ?? ""
-                ].toFixed(2)} sades! 💸`
-              : "Perdiste :("}
-          </Typography>
+          {rouletteState.winners?.[currentUserId ?? ""] && (
+            <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
+              {rouletteState.winners?.[currentUserId ?? ""] === 0
+                ? "Perdiste :("
+                : `💸 Ganaste ${rouletteState.winners?.[
+                    currentUserId ?? ""
+                  ].toFixed(2)} sades! 💸`}
+            </Typography>
+          )}
           <Button
             sx={{ marginTop: "1rem" }}
             color="secondary"
@@ -354,15 +350,12 @@ export default function Roulette() {
               alt="croupier hand"
               width={400}
               height={500}
-              onAnimationEnd={() => {
-                setRouletteStatus("spinning");
-              }}
+              // onAnimationEnd={() => {
+              //   setRouletteStatus("spinning");
+              // }}
             />
           ) : (
-            <RouletteWheel
-              winnerNumber={rouletteState.winnerNumber ?? 2}
-              onFinishSpin={() => rouletteState.endRound()}
-            />
+            <RouletteWheel winnerNumber={rouletteState.winnerNumber ?? 2} />
           )}
         </HandOverlay>
       )}

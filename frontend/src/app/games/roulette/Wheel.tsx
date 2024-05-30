@@ -48,7 +48,9 @@ const Pointer = styled(Image)`
 `;
 
 interface Props {
-  onFinishSpin: () => void;
+  onRestDuration?: number;
+  duration?: number;
+  onFinishSpin?: () => void;
   winnerNumber: number;
 }
 
@@ -67,7 +69,12 @@ const wheelProps = {
   lineWidth: 2,
 };
 
-const RouletteWheel = ({ onFinishSpin, winnerNumber }: Props) => {
+const RouletteWheel = ({
+  duration: durationProp,
+  onRestDuration,
+  onFinishSpin,
+  winnerNumber,
+}: Props) => {
   const winnerIndex = useMemo(
     () => getWinnerIndex(winnerNumber),
     [winnerNumber]
@@ -76,11 +83,13 @@ const RouletteWheel = ({ onFinishSpin, winnerNumber }: Props) => {
   useEffect(() => {
     const container = document.querySelector(".wheel-container");
     const wheel = new Wheel(container, wheelProps);
-    const duration = 10000;
+    const duration = durationProp ?? 10000;
     wheel.onRest = () => {
-      setTimeout(() => {
-        onFinishSpin();
-      }, 3000);
+      if (onFinishSpin) {
+        setTimeout(() => {
+          onFinishSpin();
+        }, onRestDuration ?? 2000);
+      }
     };
 
     // Random number between 5 and 10

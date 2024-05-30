@@ -90,8 +90,21 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     },
     startRound: (roundId: string, finishTimestamp: number) =>
       set({ status: "openBets", finishTimestamp, currentRoundId: roundId }),
-    noMoreBets: (winnerNumber: number, winners: RouletteState["winners"]) =>
-      set({ status: "spinning", winnerNumber, winners }),
+    noMoreBets: (winnerNumber: number, winners: RouletteState["winners"]) => {
+      setTimeout(() => {
+        set({ status: "spinning" });
+      }, 2500);
+
+      setTimeout(() => {
+        set({
+          currentRoundId: undefined,
+          status: "finished",
+          users: {},
+          bets: initialBets,
+        });
+      }, 2500 + 10000 + 2000);
+      return set({ status: "spinning", winnerNumber, winners });
+    },
     startSpinning: () => set({ status: "spinning" }),
     endRound: () =>
       set({

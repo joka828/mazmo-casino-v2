@@ -53,18 +53,15 @@ export const placeBet = async (bet: {
   userId: string;
   roundId?: string;
 }) => {
-  let currentRound = await getCurrentRound();
-  let currentRoundId = currentRound?.id;
+  let currentRound;
+  let currentRoundId;
 
   if (bet.roundId) {
     currentRoundId = bet.roundId;
     currentRound = await getRound(bet.roundId);
-  } else {
-    currentRound = await getCurrentRound();
-    currentRoundId = currentRound?.id;
   }
 
-  if (bet.roundId && currentRound?.status === "finished") {
+  if (currentRoundId && currentRound?.status === "finished") {
     await transferToUser(bet.userId, bet.amount);
     sendMessageToGameChannel({
       gameId: "roulette",
@@ -153,11 +150,11 @@ export const createRound = async ({
     finishTimestamp,
   });
 
-  // const winnerNumber = Math.floor(Math.random() * 37);
-  const winnerNumber = 2;
+  const winnerNumber =
+    process.env.NODE_ENV === "production" ? Math.floor(Math.random() * 37) : 2;
 
   setTimeout(() => {
-    endRound(winnerNumber);
+    endRound(winnerNumber, currentRoundId);
   }, ROUND_TIME);
 };
 
@@ -187,11 +184,10 @@ const getWinners = (
   placeIds.forEach((placeId) => {
     const usersBets = Object.keys(placedBets[placeId]);
     usersBets.forEach((userId) => {
+      if (!winners[userId]) {
+        winners[userId] = 0;
+      }
       if (winnerPlaces.includes(placeId)) {
-        if (!winners[userId]) {
-          winners[userId] = 0;
-        }
-
         winners[userId] +=
           placedBets[placeId][userId] * betPlacesInfo[placeId].multiplier;
       }
@@ -201,11 +197,11 @@ const getWinners = (
   return winners;
 };
 
-export const endRound = async (winnerNumber: number) => {
+export const endRound = async (winnerNumber: number, roundId: string) => {
   const collection = await getDatabaseCollection("roulette");
   const socket = getSocket();
 
-  const currentRound = await getCurrentRound();
+  const currentRound = await getRound(roundId);
   const currentBets = currentRound.bets;
   const winners = getWinners(winnerNumber, currentBets);
 
@@ -223,6 +219,19 @@ export const endRound = async (winnerNumber: number) => {
     winnerNumber,
     winners,
   });
+
+  const winnerIds = Object.keys(winners);
+
+  setTimeout(() => {
+    winnerIds.forEach(async (userId) => {
+      await transferToUser(userId, winners[userId]);
+      sendMessageToGameChannel({
+        gameId: "roulette",
+        message: `🤑Ganaste ${winners[userId]} sades en la ruleta!🤑`,
+        to: parseInt(userId),
+      });
+    });
+  }, 8000);
 
   chipColorIndex = 0;
   chipColors = shuffle(chipColorsList);

@@ -25,10 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   useSocketEvents();
-  const searchParams = useSearchParams();
   const currentUserState = useCurrentUserState();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     currentUserState.setUserData(searchParams.get("token") ?? "");
   }, []);
 

@@ -8,6 +8,9 @@ import useSocketEvents from "@/helpers/socketManager";
 import theme from "../theme";
 
 import "./globals.css";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCurrentUserState } from "@/api/currentUser";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   useSocketEvents();
+  const searchParams = useSearchParams();
+  const currentUserState = useCurrentUserState();
+
+  useEffect(() => {
+    currentUserState.setUserData(searchParams.get("token") ?? "");
+  }, []);
 
   return (
     <html lang="en">

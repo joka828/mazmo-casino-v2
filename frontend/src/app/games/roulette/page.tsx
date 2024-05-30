@@ -23,6 +23,7 @@ import { numberColors } from "@/helpers/constants";
 import askForSades from "@/helpers/sadesAsk";
 import Image from "next/image";
 import RouletteWheel from "./Wheel";
+import { useCurrentUserState } from "@/api/currentUser";
 
 const Overlay = styled(Box)`
   position: fixed;
@@ -252,6 +253,7 @@ const Number = styled(Button)<{ index: number }>`
 export default function Roulette() {
   const { setRouletteStatus, ...rouletteState } = useRouletteState();
   const [showResults, setShowResults] = useState(false);
+  const { userId: currentUserId } = useCurrentUserState();
 
   const areBetsOpen = rouletteState.status === "openBets";
 
@@ -316,14 +318,21 @@ export default function Roulette() {
           >
             ¡El número ganador es el {rouletteState.winnerNumber}!
           </Typography>
+          <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
+            {rouletteState.winners?.[currentUserId ?? ""]
+              ? `💸 Ganaste ${rouletteState.winners[
+                  currentUserId ?? ""
+                ].toFixed(2)} sades! 💸`
+              : "Perdiste :("}
+          </Typography>
           <Button
             sx={{ marginTop: "1rem" }}
-            onClick={() => {
-              setShowResults(false);
-            }}
             color="secondary"
             variant="contained"
             size="large"
+            onClick={() => {
+              setShowResults(false);
+            }}
           >
             Continuar
           </Button>

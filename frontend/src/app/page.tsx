@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
-import styles from "./page.module.css";
-import { Box, Skeleton, styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMenuState } from "@/api/menus";
+import { useCurrentUserState } from "@/api/currentUser";
 
 interface Props {
   apiHealth: boolean;
@@ -115,6 +115,7 @@ export default function Home() {
   const [dbHealth, setDbHealth] = useState<boolean>(false);
 
   const { socketStatus } = useMenuState();
+  const { error } = useCurrentUserState();
 
   useMemo(() => {
     const fetchData = async () => {
@@ -128,55 +129,57 @@ export default function Home() {
 
   return (
     <Menu>
-      <Typography sx={{ textAlign: "center", fontSize: "32px" }}>
+      <Typography textAlign="center" fontSize={32}>
         ¡Bienvenidx al casino de sades!
       </Typography>
-      <List>
-        {menuItems.map((item) => (
-          <MenuItem key={item.name} {...item} />
-        ))}
-      </List>
-      <Box />
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: "1.5rem",
-          display: "flex",
-          flexDirection: "row",
-          gap: "1rem",
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-          {apiHealth ? (
-            <CheckCircleIcon color="success" />
-          ) : (
-            <CancelIcon color="error" />
-          )}
-          <Typography>
-            {apiHealth ? "Api is up and running!" : "Api is down :("}
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-          {dbHealth ? (
-            <CheckCircleIcon color="success" />
-          ) : (
-            <CancelIcon color="error" />
-          )}
-          <Typography>
-            {dbHealth ? "Database is up and running!" : "Database is down :("}
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-          {socketStatus ? (
-            <CheckCircleIcon color="success" />
-          ) : (
-            <CancelIcon color="error" />
-          )}
-          <Typography>
-            {socketStatus ? "Socket is up and running!" : "Socket is down :("}
-          </Typography>
-        </Box>
-      </Box>
+      {error ? (
+        <Typography color="error" textAlign="center" fontSize={32}>
+          Authentication error
+        </Typography>
+      ) : (
+        <>
+          <List>
+            {menuItems.map((item) => (
+              <MenuItem key={item.name} {...item} />
+            ))}
+          </List>
+          <Box />
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: "1.5rem",
+              display: "flex",
+              flexDirection: "row",
+              gap: "1rem",
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+              {apiHealth ? (
+                <CheckCircleIcon color="success" />
+              ) : (
+                <CancelIcon color="error" />
+              )}
+              <Typography>Api</Typography>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+              {dbHealth ? (
+                <CheckCircleIcon color="success" />
+              ) : (
+                <CancelIcon color="error" />
+              )}
+              <Typography>Database</Typography>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+              {socketStatus ? (
+                <CheckCircleIcon color="success" />
+              ) : (
+                <CancelIcon color="error" />
+              )}
+              <Typography>Socket</Typography>
+            </Box>
+          </Box>
+        </>
+      )}
     </Menu>
   );
 }

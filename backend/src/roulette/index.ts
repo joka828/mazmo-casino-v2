@@ -56,7 +56,6 @@ export const placeBet = async (bet: {
   const currentRoundId = currentRound?.id;
 
   const testTimestamp = Date.now();
-  console.log("ADDING BET", testTimestamp);
 
   if (!currentRoundId) {
     await createRound({
@@ -89,8 +88,6 @@ export const placeBet = async (bet: {
   }
 
   const socket = getSocket();
-
-  console.log("EMITTING BET", testTimestamp - Date.now());
 
   socket.emit(ROULETTE_BET_ADDED, {
     betPlace: bet.placeId,

@@ -27,6 +27,7 @@ export default function useSocketEvents() {
     });
 
     socket.on("initialize", (initialData: { roulette: RouletteRound }) => {
+      console.log("initialize", initialData);
       if (initialData.roulette.id) {
         rouletteState.initializeData(initialData.roulette);
       } else {
@@ -39,6 +40,7 @@ export default function useSocketEvents() {
       ROULETTE_BET_ADDED,
       (data: { betPlace: BetPlace; amount: number; user: RouletteUser }) => {
         rouletteState.addBet(data.betPlace, data.amount, data.user);
+        console.log("bet added", data);
       }
     );
 
@@ -46,6 +48,7 @@ export default function useSocketEvents() {
       ROULETTE_ROUND_CREATED,
       (data: { roundId: string; finishTimestamp: number }) => {
         rouletteState.startRound(data.roundId, data.finishTimestamp);
+        console.log("round created", data);
       }
     );
 
@@ -53,6 +56,7 @@ export default function useSocketEvents() {
       ROULETTE_ROUND_ENDED,
       (data: { winnerNumber: number; winners: RouletteState["winners"] }) => {
         rouletteState.noMoreBets(data.winnerNumber, data.winners);
+        console.log("round ended, no more bets", data);
       }
     );
 

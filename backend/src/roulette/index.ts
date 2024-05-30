@@ -107,12 +107,12 @@ export const createRound = async ({
 }) => {
   const currentRoundId = uuid();
 
-  const finishDateTimestamp = Date.now() + ROUND_TIME;
+  const finishTimestamp = Date.now() + ROUND_TIME;
 
   const collection = await getDatabaseCollection("roulette");
   await collection.insertOne({
     id: currentRoundId,
-    finishDateTimestamp,
+    finishTimestamp,
     status: "openBets",
     bets: initialBets ?? {},
     users: initialUsers ?? {},
@@ -121,7 +121,7 @@ export const createRound = async ({
   const socket = getSocket();
   socket.emit(ROULETTE_ROUND_CREATED, {
     roundId: currentRoundId,
-    finishDateTimestamp,
+    finishTimestamp,
   });
 
   // const winnerNumber = Math.floor(Math.random() * 37);

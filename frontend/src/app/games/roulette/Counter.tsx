@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
 export default function Counter({
-  initialValue = 40,
+  initialValue = 40000,
   onCountingStart = () => {},
   onCountingEnd = () => {},
 }) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(Math.floor(initialValue / 1000));
 
   useEffect(() => {
     onCountingStart();

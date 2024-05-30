@@ -268,6 +268,12 @@ export default function Roulette() {
   }, [rouletteState.status]);
 
   const timeLeft = useMemo(() => {
+    console.log(
+      "Calculating time left",
+      areBetsOpen,
+      rouletteState.finishTimestamp,
+      (rouletteState.finishTimestamp ?? 0) - Date.now()
+    );
     if (areBetsOpen && rouletteState.finishTimestamp) {
       return rouletteState.finishTimestamp - Date.now();
     }

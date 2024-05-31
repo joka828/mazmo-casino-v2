@@ -3,11 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import bodyParser from "body-parser";
-import {
-  connectToDb,
-  getDatabaseClient,
-  getIsDatabaseConnected,
-} from "./helpers/dbManager";
+import { connectToDb, getIsDatabaseConnected } from "./helpers/dbManager";
 
 import {
   CASINO_ID,
@@ -72,9 +68,6 @@ app.post("/message", async (req, res) => {
   if (req.headers["bot-secret"] !== process.env.MAZMO_BOT_SECRET)
     return res.status(401).send("UNAUTHORIZED");
 
-  console.log("============= MESSAGE =============");
-  console.log(req.body);
-  console.log("============= MESSAGE =============");
   const messageContent: string = req.body.message.payload.rawContent;
   if (!messageContent) return res.status(204).send("Nothing to do");
   const parts = messageContent.toLowerCase().split(" ");
@@ -138,10 +131,6 @@ app.post("/joined", (req, res) => {
   if (req.headers["bot-secret"] !== process.env.MAZMO_BOT_SECRET)
     return res.status(401).send("UNAUTHORIZED");
 
-  console.log("============= JOINED =============");
-  console.log(req.body);
-  console.log("============= JOINED =============");
-
   const channelCredentials = {
     id: req.body.message.channel.id,
     key: req.body.key,
@@ -161,10 +150,6 @@ app.post("/bets", async (req, res) => {
     return res.status(401).send("UNAUTHORIZED");
 
   const { transaction } = req.body || {};
-
-  console.log("================== TRANSACTION ==================");
-  console.log(req.body);
-  console.log("================== TRANSACTION ==================");
 
   if (transaction?.data) {
     if (transaction.data.gameId === ROULETTE_ID) {

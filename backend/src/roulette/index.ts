@@ -7,12 +7,12 @@ import {
 import { BetPlace, RouletteRound, RouletteState, RouletteUser } from "./types";
 import { v4 as uuid } from "uuid";
 import { shuffle } from "lodash";
-import { delay, getUser, transferToUser } from "../helpers";
-import { getDatabaseClient, getDatabaseCollection } from "../helpers/dbManager";
+import { getUser, transferToUser } from "../helpers";
+import { getDatabaseCollection } from "../helpers/dbManager";
 import { betPlacesInfo, numberColors } from "./constants";
 import { sendMessageToGameChannel } from "../helpers/channelMessages";
 
-const ROUND_TIME = 20000;
+const ROUND_TIME = 40000;
 
 const chipColorsList = [
   "#000000",
@@ -45,6 +45,18 @@ const getRound = async (roundId: string) => {
   });
 
   return currentRound;
+};
+
+const getHistory = async () => {
+  const collection = await getDatabaseCollection("roulette");
+
+  const history = await collection
+    .find<RouletteRound>({ status: "finished" })
+    .sort({ finishTimestamp: -1 })
+    .limit(10)
+    .toArray();
+
+  return history.map((round) => round.winnerNumber);
 };
 
 export const placeBet = async (bet: {
@@ -232,15 +244,14 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
         await transferToUser(userId, winners[userId]);
         sendMessageToGameChannel({
           gameId: "roulette",
-          message: `🤑Ganaste ${winners[userId].toString(
-            2
-          )} sades en la ruleta!🤑`,
+          message: `El ganador es el **${winnerNumber}**! \n\n
+          🤑 Ganaste ${winners[userId].toString(2)} sades en la ruleta! 🤑`,
           to: parseInt(userId),
         });
       } else {
         sendMessageToGameChannel({
           gameId: "roulette",
-          message: `Perdiste en la ruleta :(`,
+          message: `El ganador es el **${winnerNumber}**! \n\nPerdiste :(`,
           to: parseInt(userId),
         });
       }
@@ -255,8 +266,9 @@ export const getRouletteStatus: () => Promise<
   RouletteRound | { status: "inactive" }
 > = async () => {
   const currentRound = await getCurrentRound();
+  const history = await getHistory();
 
-  if (!currentRound) return { status: "inactive" };
+  if (!currentRound) return { status: "inactive", history };
 
-  return currentRound;
+  return { ...currentRound, history };
 };

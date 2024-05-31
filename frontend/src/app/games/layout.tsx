@@ -23,6 +23,8 @@ export default function GamesLayout({
     <Column
       sx={{
         alignItems: "center",
+        flexGrow: "1",
+        height: "100%",
       }}
     >
       <Row sx={{ width: "100%", justifyContent: "space-between" }}>

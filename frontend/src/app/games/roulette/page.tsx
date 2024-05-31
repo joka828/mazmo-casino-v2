@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Box,
@@ -32,7 +32,7 @@ const Overlay = styled(Box)`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #000000a0;
+  background-color: #000000c0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -46,7 +46,7 @@ const HandOverlay = styled(Box)`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #00000080;
+  background-color: #000000c0;
 
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@ const NoMoreBetsText = styled(Typography)`
   font-weight: 500;
 `;
 
-const StyledImage = styled(Image)`
+const Hand = styled(Image)`
   position: absolute;
   top: 0;
   right: 0;
@@ -101,14 +101,19 @@ const Board = styled(Row)`
   justify-content: center;
   align-items: stretch;
   position: relative;
+  flex-grow: 1;
 `;
 
 const PlayersWrapper = styled(Row)`
-  gap: 1rem;
+  gap: 0.5rem;
   position: absolute;
-  transform: translateY(-100%);
+  transform: translate(-50%, -100%);
   top: -0.5rem;
-  right: 0;
+  left: 50%;
+`;
+
+const Avatar = styled("img")`
+  border-radius: 50%;
 `;
 
 const LeftColumn = styled(Column)`
@@ -183,7 +188,7 @@ const Group = styled(Button)`
 
   transition: background-color 0.3s;
   :hover {
-    background-color: #00000060;
+    background-color: #00000080;
   }
 
   & .rotate-text {
@@ -210,6 +215,8 @@ const NumbersSection = styled(Row)`
   flex-wrap: wrap;
   width: 70%;
   min-width: 12rem;
+  align-items: stretch;
+  gap: 0;
 `;
 
 const Number = styled(Button)<{ index: number }>`
@@ -225,6 +232,7 @@ const Number = styled(Button)<{ index: number }>`
   cursor: pointer;
   color: #fafafa;
   box-shadow: none;
+  line-height: 1;
 
   background-color: ${({ index }) =>
     index === 0 ? "" : numberColors[index] === "red" ? "#ff0000" : "#000000"};
@@ -250,10 +258,29 @@ const Number = styled(Button)<{ index: number }>`
   }
 `;
 
+const HistoryWrapper = styled(Row)`
+  background-color: #fafafa;
+  margin-top: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+`;
+
 export default function Roulette() {
   const { setRouletteStatus, ...rouletteState } = useRouletteState();
   const [showResults, setShowResults] = useState(false);
   const { userId: currentUserId } = useCurrentUserState();
+  const zeroNumberRef = useRef<HTMLButtonElement>(null);
+
+  const counterHeight = useMemo(() => {
+    if (zeroNumberRef?.current) {
+      const styles = getComputedStyle(zeroNumberRef?.current);
+      return (
+        parseFloat(styles.borderTopWidth) + zeroNumberRef.current.clientHeight
+      );
+    }
+    return undefined;
+  }, [zeroNumberRef?.current?.clientHeight]);
 
   const areBetsOpen = rouletteState.status === "openBets";
 
@@ -301,201 +328,252 @@ export default function Roulette() {
   );
 
   return (
-    <Board>
-      {showResults && (
-        <Overlay>
-          <Typography
-            sx={{
-              backgroundColor: "#fafafa",
-              borderRadius: "1rem",
-              color: "#000",
-              width: "90%",
-              padding: "0.5rem",
-            }}
-            fontSize={40}
-            fontWeight={500}
-            textAlign="center"
-          >
-            ¡El número ganador es el {rouletteState.winnerNumber}!
-          </Typography>
-          {rouletteState.winners?.[currentUserId ?? ""] !== undefined && (
-            <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
-              {rouletteState.winners?.[currentUserId ?? ""] === 0
-                ? "Perdiste :("
-                : `💸 Ganaste ${rouletteState.winners?.[
-                    currentUserId ?? ""
-                  ].toFixed(2)} sades! 💸`}
+    <Column sx={{ flexGrow: "1" }}>
+      <Board>
+        {showResults && (
+          <Overlay>
+            <Typography
+              sx={{
+                backgroundColor: "#fafafa",
+                borderRadius: "1rem",
+                color: "#000",
+                width: "90%",
+                padding: "0.5rem",
+              }}
+              fontSize={40}
+              fontWeight={500}
+              textAlign="center"
+            >
+              ¡El número ganador es el {rouletteState.winnerNumber}!
             </Typography>
-          )}
-          <Button
-            sx={{ marginTop: "1rem" }}
-            color="secondary"
-            variant="contained"
-            size="large"
-            onClick={() => {
-              setShowResults(false);
-            }}
-          >
-            Continuar
-          </Button>
-        </Overlay>
-      )}
-      {(rouletteState.status === "noMoreBets" ||
-        rouletteState.status === "spinning") && (
-        <HandOverlay>
-          <NoMoreBetsText>¡No va mas!</NoMoreBetsText>
-          {rouletteState.status === "noMoreBets" ? (
-            <StyledImage
-              src="/hand.svg"
-              alt="croupier hand"
-              width={400}
-              height={500}
-              // onAnimationEnd={() => {
-              //   setRouletteStatus("spinning");
-              // }}
-            />
-          ) : (
-            <RouletteWheel winnerNumber={rouletteState.winnerNumber ?? 2} />
-          )}
-        </HandOverlay>
-      )}
-      <PlayersWrapper>
-        {Object.keys(rouletteState.users).map((userId) => {
-          const user = rouletteState.users[userId];
-          return <Chip key={userId} color={user.color} name={user.name} />;
-        })}
-      </PlayersWrapper>
-      <LeftColumn>
-        <CounterWrapper>
-          <CounterText>
-            {areBetsOpen && timeLeft ? (
-              <Counter initialValue={timeLeft} />
-            ) : (
-              "-"
+            {rouletteState.winners?.[currentUserId ?? ""] !== undefined && (
+              <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
+                {rouletteState.winners?.[currentUserId ?? ""] === 0
+                  ? "Perdiste :("
+                  : `💸 Ganaste ${rouletteState.winners?.[
+                      currentUserId ?? ""
+                    ].toFixed(2)} sades! 💸`}
+              </Typography>
             )}
-          </CounterText>
-        </CounterWrapper>
-        <GroupsWrapper>
-          <GroupsColumn>
-            <Halves
+            <Button
+              sx={{ marginTop: "1rem" }}
+              color="secondary"
+              variant="contained"
+              size="large"
               onClick={() => {
-                onBetClick("firstHalf");
+                setShowResults(false);
               }}
             >
-              <ChipsContainer orientation="vertical" users={chips.firstHalf} />
-              <span className="rotate-text">1-18</span>
-            </Halves>
-            <Halves
+              Continuar
+            </Button>
+          </Overlay>
+        )}
+        {(rouletteState.status === "noMoreBets" ||
+          rouletteState.status === "spinning") && (
+          <HandOverlay>
+            <NoMoreBetsText>¡No va mas!</NoMoreBetsText>
+            {rouletteState.status === "noMoreBets" ? (
+              <Hand
+                src="/hand.svg"
+                alt="croupier hand"
+                width={400}
+                height={500}
+                // onAnimationEnd={() => {
+                //   setRouletteStatus("spinning");
+                // }}
+              />
+            ) : (
+              <RouletteWheel winnerNumber={rouletteState.winnerNumber ?? 2} />
+            )}
+          </HandOverlay>
+        )}
+        <PlayersWrapper>
+          {Object.keys(rouletteState.users).map((userId) => {
+            const user = rouletteState.users[userId];
+            return (
+              <Tooltip
+                key={userId}
+                title={
+                  <Column sx={{ gap: "1rem", margin: "1rem" }}>
+                    <Avatar
+                      height={100}
+                      width={100}
+                      src={user.avatar}
+                      alt={`${user.name}-avatar`}
+                    />
+                    <Typography fontSize={24}>{user.name}</Typography>
+                  </Column>
+                }
+              >
+                <Box>
+                  <Chip color={user.color} name={user.name} />
+                </Box>
+              </Tooltip>
+            );
+          })}
+        </PlayersWrapper>
+        <LeftColumn>
+          <CounterWrapper sx={{ height: counterHeight }}>
+            <CounterText>
+              {areBetsOpen && timeLeft ? (
+                <Counter initialValue={timeLeft} />
+              ) : (
+                "-"
+              )}
+            </CounterText>
+          </CounterWrapper>
+          <GroupsWrapper>
+            <GroupsColumn>
+              <Halves
+                onClick={() => {
+                  onBetClick("firstHalf");
+                }}
+              >
+                <ChipsContainer
+                  orientation="vertical"
+                  users={chips.firstHalf}
+                />
+                <span className="rotate-text">1-18</span>
+              </Halves>
+              <Halves
+                onClick={() => {
+                  onBetClick("even");
+                }}
+              >
+                <ChipsContainer orientation="vertical" users={chips.even} />
+                <span className="rotate-text">Par</span>
+              </Halves>
+              <Halves
+                sx={{
+                  backgroundColor: "red",
+                  ":hover": {
+                    backgroundColor: "#ff8080",
+                  },
+                }}
+                onClick={() => {
+                  onBetClick("red");
+                }}
+              >
+                <ChipsContainer orientation="vertical" users={chips.red} />
+                <span className="rotate-text"></span>
+              </Halves>
+              <Halves
+                sx={{
+                  backgroundColor: "black",
+                  ":hover": {
+                    backgroundColor: "#606060",
+                  },
+                }}
+                onClick={() => {
+                  onBetClick("black");
+                }}
+              >
+                <ChipsContainer orientation="vertical" users={chips.black} />
+                <span className="rotate-text"></span>
+              </Halves>
+              <Halves
+                onClick={() => {
+                  onBetClick("odd");
+                }}
+              >
+                <ChipsContainer orientation="vertical" users={chips.odd} />
+                <span className="rotate-text">Impar</span>
+              </Halves>
+              <Halves
+                onClick={() => {
+                  onBetClick("secondHalf");
+                }}
+              >
+                <ChipsContainer
+                  orientation="vertical"
+                  users={chips.secondHalf}
+                />
+                <span className="rotate-text">19-36</span>
+              </Halves>
+            </GroupsColumn>
+            <GroupsColumn>
+              <Dozen
+                onClick={() => {
+                  onBetClick("firstDozen");
+                }}
+              >
+                <ChipsContainer
+                  orientation="vertical"
+                  users={chips.firstDozen}
+                />
+                <span className="rotate-text">1-12</span>
+              </Dozen>
+              <Dozen
+                onClick={() => {
+                  onBetClick("secondDozen");
+                }}
+              >
+                <ChipsContainer
+                  orientation="vertical"
+                  users={chips.secondDozen}
+                />
+                <span className="rotate-text">13-24</span>
+              </Dozen>
+              <Dozen
+                onClick={() => {
+                  onBetClick("thirdDozen");
+                }}
+              >
+                <ChipsContainer
+                  orientation="vertical"
+                  users={chips.thirdDozen}
+                />
+                <span className="rotate-text">25-36</span>
+              </Dozen>
+            </GroupsColumn>
+          </GroupsWrapper>
+        </LeftColumn>
+        <NumbersSection>
+          <Number
+            index={0}
+            sx={{
+              flexBasis: "100%",
+              borderTopWidth: "0.3rem",
+            }}
+            onClick={() => {
+              onBetClick("0");
+            }}
+            ref={zeroNumberRef}
+          >
+            <ChipsContainer orientation="horizontal" users={chips["0"]} />0
+          </Number>
+          {Array.from({ length: 36 }).map((_, index) => (
+            <Number
+              variant="contained"
+              key={index + 1}
+              index={index + 1}
               onClick={() => {
-                onBetClick("even");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.even} />
-              <span className="rotate-text">Par</span>
-            </Halves>
-            <Halves
-              sx={{
-                backgroundColor: "red",
-                ":hover": {
-                  backgroundColor: "#ff8080",
-                },
-              }}
-              onClick={() => {
-                onBetClick("red");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.red} />
-              <span className="rotate-text"></span>
-            </Halves>
-            <Halves
-              sx={{
-                backgroundColor: "black",
-                ":hover": {
-                  backgroundColor: "#606060",
-                },
-              }}
-              onClick={() => {
-                onBetClick("black");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.black} />
-              <span className="rotate-text"></span>
-            </Halves>
-            <Halves
-              onClick={() => {
-                onBetClick("odd");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.odd} />
-              <span className="rotate-text">Impar</span>
-            </Halves>
-            <Halves
-              onClick={() => {
-                onBetClick("secondHalf");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.secondHalf} />
-              <span className="rotate-text">19-36</span>
-            </Halves>
-          </GroupsColumn>
-          <GroupsColumn>
-            <Dozen
-              onClick={() => {
-                onBetClick("firstDozen");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.firstDozen} />
-              <span className="rotate-text">1-12</span>
-            </Dozen>
-            <Dozen
-              onClick={() => {
-                onBetClick("secondDozen");
+                onBetClick((index + 1).toString() as BetPlace);
               }}
             >
               <ChipsContainer
-                orientation="vertical"
-                users={chips.secondDozen}
+                orientation="horizontal"
+                users={chips[(index + 1).toString() as BetPlace]}
               />
-              <span className="rotate-text">13-24</span>
-            </Dozen>
-            <Dozen
-              onClick={() => {
-                onBetClick("thirdDozen");
-              }}
-            >
-              <ChipsContainer orientation="vertical" users={chips.thirdDozen} />
-              <span className="rotate-text">25-36</span>
-            </Dozen>
-          </GroupsColumn>
-        </GroupsWrapper>
-      </LeftColumn>
-      <NumbersSection>
-        <Number
-          index={0}
-          sx={{ flexBasis: "100%", borderTopWidth: "0.3rem", height: "3rem" }}
-          onClick={() => {
-            onBetClick("0");
-          }}
-        >
-          <ChipsContainer orientation="horizontal" users={chips["0"]} />0
-        </Number>
-        {Array.from({ length: 36 }).map((_, index) => (
-          <Number
-            variant="contained"
-            key={index + 1}
-            index={index + 1}
-            onClick={() => {
-              onBetClick(`${index + 1}` as BetPlace);
-            }}
+              <span>{index + 1}</span>
+            </Number>
+          ))}
+        </NumbersSection>
+      </Board>
+      <HistoryWrapper className="history-wrapper">
+        <Typography fontWeight={600} color="#000">
+          Historial:
+        </Typography>
+        {rouletteState.history.map((number) => (
+          <Typography
+            key={number}
+            color={number === 0 ? "#1c6708" : numberColors[number]}
+            fontWeight={600}
           >
-            <ChipsContainer
-              orientation="horizontal"
-              users={chips[`${index + 1}` as BetPlace]}
-            />
-            <span>{index + 1}</span>
-          </Number>
+            {number}
+          </Typography>
         ))}
-      </NumbersSection>
-    </Board>
+      </HistoryWrapper>
+    </Column>
   );
 }

@@ -16,7 +16,7 @@ export const ROULETTE_ROUND_CREATED = "rouletteRoundCreated";
 export const ROULETTE_ROUND_ENDED = "rouletteRoundEnded";
 
 export default function useSocketEvents() {
-  const { setSocketStatus } = useMenuState();
+  const { setSocketStatus, setLoading } = useMenuState();
   const rouletteState = useRouletteState();
 
   useEffect(() => {
@@ -26,15 +26,16 @@ export default function useSocketEvents() {
       setSocketStatus(true);
     });
 
-    socket.on("initialize", (initialData: { roulette: RouletteRound }) => {
-      console.log("initialize", initialData);
-      if (initialData.roulette.id) {
+    socket.on(
+      "initialize",
+      (initialData: {
+        roulette: RouletteRound & { history: RouletteState["history"] };
+      }) => {
+        console.log("initialize", initialData);
+        setLoading(false);
         rouletteState.initializeData(initialData.roulette);
-      } else {
-        rouletteState.setRouletteStatus(initialData.roulette.status);
       }
-      rouletteState.setRouletteStatus(initialData.roulette.status);
-    });
+    );
 
     socket.on(
       ROULETTE_BET_ADDED,

@@ -1,12 +1,13 @@
 "use client";
 import Image from "next/image";
-import { Box, styled, Typography } from "@mui/material";
+import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMenuState } from "@/api/menus";
 import { useCurrentUserState } from "@/api/currentUser";
+import Column from "@/components/Column";
 
 interface Props {
   apiHealth: boolean;
@@ -54,6 +55,19 @@ const List = styled("div")`
   flex-direction: column;
   align-items: stretch;
   width: 100%;
+`;
+
+const LoadingOverlay = styled(Column)`
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000000d0;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
 `;
 
 interface MenuItem {
@@ -114,7 +128,7 @@ export default function Home() {
   const [apiHealth, setApiHealth] = useState<boolean>(false);
   const [dbHealth, setDbHealth] = useState<boolean>(false);
 
-  const { socketStatus } = useMenuState();
+  const { socketStatus, loading } = useMenuState();
   const { error } = useCurrentUserState();
 
   useMemo(() => {
@@ -128,58 +142,75 @@ export default function Home() {
   }, []);
 
   return (
-    <Menu>
-      <Typography textAlign="center" fontSize={32}>
-        ¡Bienvenidx al casino de sades!
-      </Typography>
-      {error ? (
-        <Typography color="error" textAlign="center" fontSize={32}>
-          Authentication error
-        </Typography>
-      ) : (
-        <>
-          <List>
-            {menuItems.map((item) => (
-              <MenuItem key={item.name} {...item} />
-            ))}
-          </List>
-          <Box />
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: "1.5rem",
-              display: "flex",
-              flexDirection: "row",
-              gap: "1rem",
-            }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-              {apiHealth ? (
-                <CheckCircleIcon color="success" />
-              ) : (
-                <CancelIcon color="error" />
-              )}
-              <Typography>Api</Typography>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-              {dbHealth ? (
-                <CheckCircleIcon color="success" />
-              ) : (
-                <CancelIcon color="error" />
-              )}
-              <Typography>Database</Typography>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-              {socketStatus ? (
-                <CheckCircleIcon color="success" />
-              ) : (
-                <CancelIcon color="error" />
-              )}
-              <Typography>Socket</Typography>
-            </Box>
-          </Box>
-        </>
+    <>
+      {loading && (
+        <LoadingOverlay>
+          <Typography fontSize={32}>Cargando...</Typography>
+          <CircularProgress
+            sx={{ width: "30vw", height: "30vw", color: "#fafafa" }}
+            size="large"
+          />
+        </LoadingOverlay>
       )}
-    </Menu>
+      <Menu>
+        <Typography textAlign="center" fontSize={32}>
+          ¡Bienvenidx al casino de sades!
+        </Typography>
+        {error ? (
+          <Typography color="error" textAlign="center" fontSize={32}>
+            Authentication error
+          </Typography>
+        ) : (
+          <>
+            <List>
+              {menuItems.map((item) => (
+                <MenuItem key={item.name} {...item} />
+              ))}
+            </List>
+            <Box />
+            <Box
+              sx={{
+                position: "fixed",
+                bottom: "1.5rem",
+                display: "flex",
+                flexDirection: "row",
+                gap: "1rem",
+              }}
+            >
+              <Box
+                sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}
+              >
+                {apiHealth ? (
+                  <CheckCircleIcon color="success" />
+                ) : (
+                  <CancelIcon color="error" />
+                )}
+                <Typography>Api</Typography>
+              </Box>
+              <Box
+                sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}
+              >
+                {dbHealth ? (
+                  <CheckCircleIcon color="success" />
+                ) : (
+                  <CancelIcon color="error" />
+                )}
+                <Typography>Database</Typography>
+              </Box>
+              <Box
+                sx={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}
+              >
+                {socketStatus ? (
+                  <CheckCircleIcon color="success" />
+                ) : (
+                  <CancelIcon color="error" />
+                )}
+                <Typography>Socket</Typography>
+              </Box>
+            </Box>
+          </>
+        )}
+      </Menu>
+    </>
   );
 }

@@ -2,7 +2,9 @@ import { BetPlace, RouletteRound, RouletteState, RouletteUser } from "./types";
 import { create } from "zustand";
 
 interface Methods {
-  initializeData: (initialData: RouletteRound) => void;
+  initializeData: (
+    initialData: RouletteRound & { history: RouletteState["history"] }
+  ) => void;
   setRouletteStatus: (state: RouletteState["status"]) => void;
   addBet: (betPlace: BetPlace, amount: number, user: RouletteUser) => void;
   startRound: (roundId: string, finishTimestamp: number) => void;
@@ -70,7 +72,10 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     currentRoundId: undefined,
     winnerNumber: undefined,
     winners: {},
-    initializeData: (initialData: RouletteRound) => {
+    history: [],
+    initializeData: (
+      initialData: RouletteRound & { history: RouletteState["history"] }
+    ) => {
       if (initialData.id) {
         set({
           status: initialData.status,
@@ -83,9 +88,10 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
           users: {
             ...initialData.users,
           },
+          history: initialData.history,
         });
       } else {
-        set({ status: initialData.status });
+        set({ status: initialData.status, history: initialData.history });
       }
     },
     startRound: (roundId: string, finishTimestamp: number) =>
@@ -96,14 +102,28 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
       }, 2500);
 
       setTimeout(() => {
-        set({
-          currentRoundId: undefined,
-          status: "finished",
-          users: {},
-          bets: initialBets,
+        set((state) => {
+          const newHistory = [
+            winnerNumber,
+            ...state.history.slice(0, state.history.length - 1),
+          ];
+          return {
+            currentRoundId: undefined,
+            status: "finished",
+            users: {},
+            bets: initialBets,
+            history: newHistory,
+          };
         });
       }, 2500 + 10000 + 2000);
-      return set({ status: "spinning", winnerNumber, winners });
+
+      return set((state) => {
+        return {
+          status: "spinning",
+          winnerNumber,
+          winners,
+        };
+      });
     },
     startSpinning: () => set({ status: "spinning" }),
     endRound: () =>

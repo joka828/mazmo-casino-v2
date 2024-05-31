@@ -61,6 +61,7 @@ export interface RouletteState {
   status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
   winnerNumber?: number;
   winners?: Record<string, number>;
+  history: number[];
 }
 
 export interface RouletteRound {

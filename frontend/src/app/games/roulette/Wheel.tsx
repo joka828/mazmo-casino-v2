@@ -5,7 +5,6 @@ import { styled } from "@mui/material";
 import { easeInOutQuad } from "easing-utils";
 import { useEffect, useMemo } from "react";
 import Image from "next/image";
-// import { Wheel } from "react-custom-roulette";
 
 const black = "#000000";
 const red = "#eb1000";

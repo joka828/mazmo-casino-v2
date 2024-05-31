@@ -126,6 +126,7 @@ const CounterWrapper = styled(Box)`
   width: 100%;
   height: 3rem;
   padding: 0.5rem;
+  flex-basis: 7.69%; // 1/13
 `;
 
 const CounterText = styled(Box)`
@@ -270,17 +271,6 @@ export default function Roulette() {
   const { setRouletteStatus, ...rouletteState } = useRouletteState();
   const [showResults, setShowResults] = useState(false);
   const { userId: currentUserId } = useCurrentUserState();
-  const zeroNumberRef = useRef<HTMLButtonElement>(null);
-
-  const counterHeight = useMemo(() => {
-    if (zeroNumberRef?.current) {
-      const styles = getComputedStyle(zeroNumberRef?.current);
-      return (
-        parseFloat(styles.borderTopWidth) + zeroNumberRef.current.clientHeight
-      );
-    }
-    return undefined;
-  }, [zeroNumberRef?.current?.clientHeight]);
 
   const areBetsOpen = rouletteState.status === "openBets";
 
@@ -413,7 +403,7 @@ export default function Roulette() {
           })}
         </PlayersWrapper>
         <LeftColumn>
-          <CounterWrapper sx={{ height: counterHeight }}>
+          <CounterWrapper>
             <CounterText>
               {areBetsOpen && timeLeft ? (
                 <Counter initialValue={timeLeft} />
@@ -538,7 +528,6 @@ export default function Roulette() {
             onClick={() => {
               onBetClick("0");
             }}
-            ref={zeroNumberRef}
           >
             <ChipsContainer orientation="horizontal" users={chips["0"]} />0
           </Number>

@@ -65,7 +65,9 @@ export const placeBet = async (bet: {
     await transferToUser(bet.userId, bet.amount);
     sendMessageToGameChannel({
       gameId: "roulette",
-      message: `La ronda ya terminó, tus ${bet.amount} sades han sido devueltos.`,
+      message: `La ronda ya terminó, tus ${bet.amount.toString(
+        2
+      )} sades han sido devueltos.`,
       to: parseInt(bet.userId),
     });
 
@@ -224,12 +226,24 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
 
   setTimeout(() => {
     winnerIds.forEach(async (userId) => {
-      await transferToUser(userId, winners[userId]);
-      sendMessageToGameChannel({
-        gameId: "roulette",
-        message: `🤑Ganaste ${winners[userId]} sades en la ruleta!🤑`,
-        to: parseInt(userId),
-      });
+      const amount = winners[userId];
+
+      if (amount > 0) {
+        await transferToUser(userId, winners[userId]);
+        sendMessageToGameChannel({
+          gameId: "roulette",
+          message: `🤑Ganaste ${winners[userId].toString(
+            2
+          )} sades en la ruleta!🤑`,
+          to: parseInt(userId),
+        });
+      } else {
+        sendMessageToGameChannel({
+          gameId: "roulette",
+          message: `Perdiste en la ruleta :(`,
+          to: parseInt(userId),
+        });
+      }
     });
   }, 8000);
 

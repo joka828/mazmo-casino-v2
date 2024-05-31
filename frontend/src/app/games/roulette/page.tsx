@@ -318,7 +318,7 @@ export default function Roulette() {
           >
             ¡El número ganador es el {rouletteState.winnerNumber}!
           </Typography>
-          {rouletteState.winners?.[currentUserId ?? ""] && (
+          {rouletteState.winners?.[currentUserId ?? ""] !== undefined && (
             <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
               {rouletteState.winners?.[currentUserId ?? ""] === 0
                 ? "Perdiste :("

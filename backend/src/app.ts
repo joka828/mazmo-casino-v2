@@ -9,7 +9,12 @@ import {
   getIsDatabaseConnected,
 } from "./helpers/dbManager";
 
-import { CASINO_ID, MAZMO_API_URL, ROULETTE_ID } from "./helpers/constants";
+import {
+  CASINO_ID,
+  MANAGEMENT_ID,
+  MAZMO_API_URL,
+  ROULETTE_ID,
+} from "./helpers/constants";
 import { getCasinoBalance } from "./helpers";
 import {
   printNonCasinoWelcome,
@@ -82,21 +87,44 @@ app.post("/message", async (req, res) => {
   if (isAdmin) {
     if (parts[0] === "/casino") {
       if (parts[1] === "set" && parts[2] === "credentials") {
-        await setChannelCredentials({
-          gameId: ROULETTE_ID,
-          id: channelId,
-          key: channelKey,
-        });
+        if (parts[3] === "management") {
+          await setChannelCredentials({
+            gameId: MANAGEMENT_ID,
+            id: channelId,
+            key: channelKey,
+          });
 
-        await setChannelCredentials({
-          gameId: CASINO_ID,
-          id: channelId,
-          key: channelKey,
-        });
+          await sendMessageToGameChannel({
+            message: "Credentials set",
+            gameId: MANAGEMENT_ID,
+            to: userId,
+          });
+        } else {
+          await setChannelCredentials({
+            gameId: ROULETTE_ID,
+            id: channelId,
+            key: channelKey,
+          });
 
+          await setChannelCredentials({
+            gameId: CASINO_ID,
+            id: channelId,
+            key: channelKey,
+          });
+
+          await sendMessageToGameChannel({
+            message: "Credentials set",
+            gameId: ROULETTE_ID,
+            to: userId,
+          });
+        }
+      }
+
+      if (parts[1] === "balance") {
+        const balance = await getCasinoBalance();
         await sendMessageToGameChannel({
-          message: "Credentials set",
-          gameId: ROULETTE_ID,
+          message: `Balance: ${balance}`,
+          gameId: MANAGEMENT_ID,
           to: userId,
         });
       }

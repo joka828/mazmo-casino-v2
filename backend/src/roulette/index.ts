@@ -151,7 +151,7 @@ export const createRound = async ({
   });
 
   const winnerNumber =
-    process.env.NODE_ENV === "production" ? Math.floor(Math.random() * 37) : 2;
+    process.env.NODE_ENV === "development" ? 2 : Math.floor(Math.random() * 37);
 
   setTimeout(() => {
     endRound(winnerNumber, currentRoundId);

@@ -534,7 +534,7 @@ export default function Roulette() {
           {Array.from({ length: 36 }).map((_, index) => (
             <Number
               variant="contained"
-              key={index + 1}
+              key={`bet-place-${index + 1}`}
               index={index + 1}
               onClick={() => {
                 onBetClick((index + 1).toString() as BetPlace);
@@ -553,9 +553,9 @@ export default function Roulette() {
         <Typography fontWeight={600} color="#000">
           Historial:
         </Typography>
-        {rouletteState.history.map((number) => (
+        {rouletteState.history.map((number, index) => (
           <Typography
-            key={number}
+            key={`history-${number}-${index}`}
             color={number === 0 ? "#1c6708" : numberColors[number]}
             fontWeight={600}
           >

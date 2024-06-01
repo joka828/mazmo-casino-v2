@@ -107,6 +107,7 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
             winnerNumber,
             ...state.history.slice(0, state.history.length - 1),
           ];
+
           return {
             currentRoundId: undefined,
             status: "finished",

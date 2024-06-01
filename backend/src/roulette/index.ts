@@ -12,7 +12,7 @@ import { getDatabaseCollection } from "../helpers/dbManager";
 import { betPlacesInfo, numberColors } from "./constants";
 import { sendMessageToGameChannel } from "../helpers/channelMessages";
 
-const ROUND_TIME = 40000;
+const ROUND_TIME = process.env.NODE_ENV === "development" ? 5000 : 40000;
 
 const chipColorsList = [
   "#000000",
@@ -57,6 +57,10 @@ const getHistory = async () => {
     .toArray();
 
   return history.map((round) => round.winnerNumber);
+};
+
+export const initializeRoulette = async () => {
+  const currentRound = await getCurrentRound();
 };
 
 export const placeBet = async (bet: {

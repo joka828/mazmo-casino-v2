@@ -245,8 +245,9 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
         await transferToUser(userId, amount);
         await sendMessageToGameChannel({
           gameId: "roulette",
-          message: `El ganador es el **${winnerNumber}**! \n
-          🤑 Ganaste ${amount.toFixed(2)} sades en la ruleta! 🤑`,
+          message: `El ganador es el **${winnerNumber}**! \n\n🤑 Ganaste ${amount.toFixed(
+            2
+          )} sades en la ruleta! 🤑`,
           to: parseInt(userId),
         });
       } else {

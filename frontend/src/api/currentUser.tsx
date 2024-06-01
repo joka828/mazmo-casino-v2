@@ -18,6 +18,7 @@ export const useCurrentUserState = create<{
         role: string;
       }>(jwt);
 
+      console.log("decodedToken", decodedToken);
       if (!decodedToken) return set({ error: true });
 
       const { userId, channelId, role } = decodedToken;

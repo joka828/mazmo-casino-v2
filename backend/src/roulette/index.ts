@@ -12,7 +12,7 @@ import { getDatabaseCollection } from "../helpers/dbManager";
 import { betPlacesInfo, numberColors } from "./constants";
 import { sendMessageToGameChannel } from "../helpers/channelMessages";
 
-const ROUND_TIME = process.env.NODE_ENV === "development" ? 5000 : 40000;
+const ROUND_TIME = process.env.NODE_ENV === "development" ? 20000 : 40000;
 
 const chipColorsList = [
   "#000000",
@@ -61,6 +61,21 @@ const getHistory = async () => {
 
 export const initializeRoulette = async () => {
   const currentRound = await getCurrentRound();
+
+  if (!currentRound) return;
+
+  console.log(
+    "Initializing with a started round",
+    currentRound.finishTimestamp - Date.now()
+  );
+  setTimeout(() => {
+    const winnerNumber =
+      process.env.NODE_ENV === "development"
+        ? 2
+        : Math.floor(Math.random() * 37);
+
+    endRound(winnerNumber, currentRound.id);
+  }, currentRound.finishTimestamp - Date.now());
 };
 
 export const placeBet = async (bet: {
@@ -168,10 +183,12 @@ export const createRound = async ({
     finishTimestamp,
   });
 
-  const winnerNumber =
-    process.env.NODE_ENV === "development" ? 2 : Math.floor(Math.random() * 37);
-
   setTimeout(() => {
+    const winnerNumber =
+      process.env.NODE_ENV === "development"
+        ? 2
+        : Math.floor(Math.random() * 37);
+
     endRound(winnerNumber, currentRoundId);
   }, ROUND_TIME);
 };

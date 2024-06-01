@@ -19,7 +19,7 @@ import {
   sendMessageToGameChannel,
 } from "./helpers/channelMessages";
 import { initializeSocket } from "./helpers/socketManager";
-import { getRouletteStatus, placeBet } from "./roulette";
+import { getRouletteStatus, initializeRoulette, placeBet } from "./roulette";
 
 connectToDb();
 
@@ -50,6 +50,8 @@ io.on("connect", async (socket) => {
     roulette: rouletteStatus,
   });
 });
+
+initializeRoulette();
 
 app.get("/health", (req, res) => {
   res.send("OK");

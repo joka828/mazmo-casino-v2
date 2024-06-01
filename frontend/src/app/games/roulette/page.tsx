@@ -338,7 +338,7 @@ export default function Roulette() {
             </Typography>
             {rouletteState.winners?.[currentUserId ?? ""] !== undefined && (
               <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
-                {rouletteState.winners?.[currentUserId ?? ""] === 0
+                {rouletteState.winners?.[currentUserId ?? ""] < 0.01
                   ? "Perdiste :("
                   : `💸 Ganaste ${rouletteState.winners?.[
                       currentUserId ?? ""

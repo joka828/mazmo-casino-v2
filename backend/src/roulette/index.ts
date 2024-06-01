@@ -77,7 +77,7 @@ export const placeBet = async (bet: {
     await transferToUser(bet.userId, bet.amount);
     sendMessageToGameChannel({
       gameId: "roulette",
-      message: `La ronda ya terminó, tus ${bet.amount.toString(
+      message: `La ronda ya terminó, tus ${bet.amount.toFixed(
         2
       )} sades han sido devueltos.`,
       to: parseInt(bet.userId),
@@ -240,16 +240,17 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
     winnerIds.forEach(async (userId) => {
       const amount = winners[userId];
 
-      if (amount > 0) {
-        await transferToUser(userId, winners[userId]);
-        sendMessageToGameChannel({
+      // JS rounding 🤷🏻‍♂️
+      if (amount > 0.01) {
+        await transferToUser(userId, amount);
+        await sendMessageToGameChannel({
           gameId: "roulette",
-          message: `El ganador es el **${winnerNumber}**! \n\n
-          🤑 Ganaste ${winners[userId].toString(2)} sades en la ruleta! 🤑`,
+          message: `El ganador es el **${winnerNumber}**! \n
+          🤑 Ganaste ${amount.toFixed(2)} sades en la ruleta! 🤑`,
           to: parseInt(userId),
         });
       } else {
-        sendMessageToGameChannel({
+        await sendMessageToGameChannel({
           gameId: "roulette",
           message: `El ganador es el **${winnerNumber}**! \n\nPerdiste :(`,
           to: parseInt(userId),

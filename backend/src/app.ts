@@ -54,11 +54,13 @@ io.on("connect", async (socket) => {
 initializeRoulette();
 
 app.get("/health", (req, res) => {
+  res.status(200);
   res.send("OK");
 });
 
 app.get("/mongodb-health", async (req, res) => {
   if (await getIsDatabaseConnected()) {
+    res.status(200);
     res.send("OK");
   } else {
     res.status(502);

@@ -37,8 +37,7 @@ jobs:
           --build-arg DB_NAME=${{ vars.DB_NAME }} \
           --build-arg DB_HOST=${{ vars.DB_HOST }} \
           --build-arg MAZMO_BOT_ID=${{ vars.MAZMO_BOT_ID }} \
-          --build-arg MAZMO_BOT_SECRET=${{ secrets.MAZMO_BOT_SECRET }} \
-          --build-arg MAZMO_CHANNEL_JWT_SECRET=${{ vars.MAZMO_CHANNEL_JWT_SECRET }} \
+          --build-arg MAZMO_BOT_SECRET=${{ vars.MAZMO_BOT_SECRET }} \
           -t gcr.io/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_BACKEND_SERVICE_NAME }}:$GITHUB_SHA .
 
       - name: Push Docker image

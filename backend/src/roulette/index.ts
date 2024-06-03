@@ -7,12 +7,12 @@ import {
 import { BetPlace, RouletteRound, RouletteState, RouletteUser } from "./types";
 import { v4 as uuid } from "uuid";
 import { shuffle } from "lodash";
-import { getUser, transferToUser } from "../helpers";
+import { getUser, getUsers, transferToUser } from "../helpers";
 import { getDatabaseCollection } from "../helpers/dbManager";
 import { betPlacesInfo, numberColors } from "./constants";
 import { sendMessageToGameChannel } from "../helpers/channelMessages";
 
-const ROUND_TIME = process.env.NODE_ENV === "development" ? 20000 : 40000;
+const ROUND_TIME = process.env.NODE_ENV === "development" ? 5000 : 40000;
 
 const chipColorsList = [
   "#000000",
@@ -208,7 +208,7 @@ const getWinnerPlaces = (winnerNumber: number) => {
   return winners;
 };
 
-const getWinners = (
+const getResults = (
   winnerNumber: number,
   placedBets: RouletteRound["bets"]
 ) => {
@@ -238,7 +238,7 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
 
   const currentRound = await getRound(roundId);
   const currentBets = currentRound.bets;
-  const winners = getWinners(winnerNumber, currentBets);
+  const results = getResults(winnerNumber, currentBets);
 
   await collection.updateOne(
     { status: { $ne: "finished" } },
@@ -246,38 +246,55 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
       $set: {
         status: "finished",
         winnerNumber,
-        winners,
+        winners: results,
       },
     }
   );
   socket.emit(ROULETTE_ROUND_ENDED, {
     winnerNumber,
-    winners,
+    winners: results,
   });
 
-  const winnerIds = Object.keys(winners);
+  setTimeout(async () => {
+    const lines = [];
 
-  setTimeout(() => {
+    const winnerIds = Object.keys(results).filter((id) => results[id] > 0);
+    const winnerUsers = await getUsers(winnerIds);
+
     winnerIds.forEach(async (userId) => {
-      const amount = winners[userId];
+      const amount = results[userId];
+      lines.push(
+        `@${winnerUsers[userId].username} llevándose ${results[userId].toFixed(
+          2
+        )}§`
+      );
 
       // JS rounding 🤷🏻‍♂️
-      if (amount > 0.01) {
-        await transferToUser(userId, amount);
-        await sendMessageToGameChannel({
-          gameId: "roulette",
-          message: `El ganador es el **${winnerNumber}**! \n\n🤑 Ganaste ${amount.toFixed(
-            2
-          )} sades en la ruleta! 🤑`,
-          to: parseInt(userId),
-        });
-      } else {
-        await sendMessageToGameChannel({
-          gameId: "roulette",
-          message: `El ganador es el **${winnerNumber}**! \n\nPerdiste :(`,
-          to: parseInt(userId),
-        });
-      }
+      transferToUser(userId, amount);
+      //   await sendMessageToGameChannel({
+      //     gameId: "roulette",
+      //     message: `El ganador es el **${winnerNumber}**! \n\n🤑 Ganaste ${amount.toFixed(
+      //       2
+      //     )} sades en la ruleta! 🤑`,
+      //     to: parseInt(userId),
+      //   });
+      // } else {
+      //   await sendMessageToGameChannel({
+      //     gameId: "roulette",
+      //     message: `El ganador es el **${winnerNumber}**! \n\nPerdiste :(`,
+      //     to: parseInt(userId),
+      //   });
+      // }
+    });
+
+    console.log("===================== WINNERS =====================");
+    console.log(winnerIds, lines);
+    console.log("===================== WINNERS =====================");
+    const winnersText = lines.length ? lines.join(`\n`) : `La casa :moneybag:`;
+
+    await sendMessageToGameChannel({
+      gameId: "roulette",
+      message: `El ganador es el **${winnerNumber}**! \n\n Los ganadores son: \n ${winnersText}\n\n¡¡Felicidades!! :money_mouth_face::money_mouth_face:`,
     });
   }, 8000);
 

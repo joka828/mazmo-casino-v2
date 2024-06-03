@@ -204,6 +204,10 @@ const getWinnerPlaces = (winnerNumber: number) => {
     if (winnerNumber < 13) winners.push("firstDozen");
     if (winnerNumber > 12 && winnerNumber < 25) winners.push("secondDozen");
     if (winnerNumber > 24) winners.push("thirdDozen");
+
+    if (winnerNumber % 3 === 1) winners.push("firstColumn");
+    if (winnerNumber % 3 === 2) winners.push("secondColumn");
+    if (winnerNumber % 3 === 0) winners.push("thirdColumn");
   }
   return winners;
 };
@@ -269,27 +273,8 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
         )}§`
       );
 
-      // JS rounding 🤷🏻‍♂️
       transferToUser(userId, amount);
-      //   await sendMessageToGameChannel({
-      //     gameId: "roulette",
-      //     message: `El ganador es el **${winnerNumber}**! \n\n🤑 Ganaste ${amount.toFixed(
-      //       2
-      //     )} sades en la ruleta! 🤑`,
-      //     to: parseInt(userId),
-      //   });
-      // } else {
-      //   await sendMessageToGameChannel({
-      //     gameId: "roulette",
-      //     message: `El ganador es el **${winnerNumber}**! \n\nPerdiste :(`,
-      //     to: parseInt(userId),
-      //   });
-      // }
     });
-
-    console.log("===================== WINNERS =====================");
-    console.log(winnerIds, lines);
-    console.log("===================== WINNERS =====================");
     const winnersText = lines.length ? lines.join(`\n`) : `La casa :moneybag:`;
 
     await sendMessageToGameChannel({

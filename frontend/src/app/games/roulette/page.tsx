@@ -1,22 +1,13 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import {
-  Box,
-  Button,
-  IconButton,
-  styled,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Button, styled, Tooltip, Typography } from "@mui/material";
 
 import Row from "../../../components/Row";
 import Column from "../../../components/Column";
 import Chip from "./Chip";
 import Counter from "./Counter";
-import { BetPlace } from "../../../api/roulette/types";
+import { BetPlace, RouletteState } from "../../../api/roulette/types";
 import { useRouletteState } from "@/api/roulette";
 import ChipsContainer from "./ChipsContainer";
 import { numberColors } from "@/helpers/constants";
@@ -126,7 +117,7 @@ const CounterWrapper = styled(Box)`
   width: 100%;
   height: 3rem;
   padding: 0.5rem;
-  flex-basis: 7.69%; // 1/13
+  flex-basis: 7.14%; // 1/14
 `;
 
 const CounterText = styled(Box)`
@@ -146,7 +137,7 @@ const CounterText = styled(Box)`
 
 const GroupsWrapper = styled(Row)`
   flex-grow: 1;
-  flex-basis: 100%;
+  flex-basis: 85.71%;
   align-items: center;
   justify-content: center;
 
@@ -220,11 +211,10 @@ const NumbersSection = styled(Row)`
   gap: 0;
 `;
 
-const Number = styled(Button)<{ index: number }>`
+const HorizontalTile = styled(Button)`
   border-radius: 0;
   border: 0.3rem solid #fafafa;
   border-top-width: 0;
-  border-right-width: ${({ index }) => (index % 3 === 0 ? 0.3 : 0)}rem;
   flex-basis: 33.3333%;
   min-height: 3rem;
   font-size: 1.5rem;
@@ -234,6 +224,12 @@ const Number = styled(Button)<{ index: number }>`
   color: #fafafa;
   box-shadow: none;
   line-height: 1;
+
+  transition: background-color 0.3s;
+`;
+
+const Number = styled(HorizontalTile)<{ index: number }>`
+  border-right-width: ${({ index }) => (index % 3 === 0 ? 0.3 : 0)}rem;
 
   background-color: ${({ index }) =>
     index === 0 ? "" : numberColors[index] === "red" ? "#ff0000" : "#000000"};
@@ -245,10 +241,6 @@ const Number = styled(Button)<{ index: number }>`
       ? "border-top-left-radius: 1rem; border-top-right-radius: 1rem;"
       : ""}
 
-  :last-of-type {
-    border-bottom-right-radius: 1rem;
-  }
-
   :hover {
     background-color: ${({ index }) =>
       index === 0
@@ -256,6 +248,15 @@ const Number = styled(Button)<{ index: number }>`
         : numberColors[index] === "red"
         ? "#ff8080"
         : "#606060"};
+  }
+`;
+
+const ColumnButton = styled(HorizontalTile)`
+  border-right-width: 0;
+  text-transform: none;
+
+  :hover {
+    background-color: #00000080;
   }
 `;
 
@@ -368,9 +369,6 @@ export default function Roulette() {
                 alt="croupier hand"
                 width={400}
                 height={500}
-                // onAnimationEnd={() => {
-                //   setRouletteStatus("spinning");
-                // }}
               />
             ) : (
               <RouletteWheel winnerNumber={rouletteState.winnerNumber ?? 2} />
@@ -517,6 +515,7 @@ export default function Roulette() {
               </Dozen>
             </GroupsColumn>
           </GroupsWrapper>
+          <Box sx={{ flexBasis: "7.14%", width: "100%" }} />
         </LeftColumn>
         <NumbersSection>
           <Number
@@ -547,6 +546,41 @@ export default function Roulette() {
               <span>{index + 1}</span>
             </Number>
           ))}
+          <ColumnButton
+            sx={{ borderBottomLeftRadius: "1rem" }}
+            onClick={() => {
+              onBetClick("firstColumn");
+            }}
+          >
+            <ChipsContainer
+              orientation="horizontal"
+              users={chips.firstColumn}
+            />
+            2 a 1
+          </ColumnButton>
+          <ColumnButton
+            onClick={() => {
+              onBetClick("secondColumn");
+            }}
+          >
+            <ChipsContainer
+              orientation="horizontal"
+              users={chips.secondColumn}
+            />
+            2 a 1
+          </ColumnButton>
+          <ColumnButton
+            sx={{ borderBottomRightRadius: "1rem", borderRightWidth: "0.3rem" }}
+            onClick={() => {
+              onBetClick("thirdColumn");
+            }}
+          >
+            <ChipsContainer
+              orientation="horizontal"
+              users={chips.thirdColumn}
+            />
+            2 a 1
+          </ColumnButton>
         </NumbersSection>
       </Board>
       <HistoryWrapper className="history-wrapper">

@@ -5,7 +5,7 @@
     "backend": "cd backend && npm run dev",
     "mongodb": "docker-compose up mongodb",
     "dev-backend": "dotenvx run -- concurrently \"npm run mongodb\" \"npm run backend\"",
-    "dev": "dotenvx run -- concurrently --names=\"backend,frontend\" -c=\"auto\" \"npm run backend\" \"npm run frontend\""
+    "dev": "dotenvx run -- concurrently --names=\"backend,frontend,database\" -c=\"auto\" \"npm run backend\" \"npm run frontend\" \"npm run mongodb\""
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^0.38.0",

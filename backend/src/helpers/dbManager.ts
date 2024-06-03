@@ -1,10 +1,10 @@
 import { MongoClient } from "mongodb";
 
-export const CONNECTION_STRING = `mongodb+srv://${
-  process.env.DB_USER
-}:${encodeURIComponent(process.env.DB_PASSWORD)}@${process.env.DB_HOST}/${
+export const CONNECTION_STRING = `mongodb${
+  process.env.DB_HOST === "localhost" ? "" : "+srv"
+}://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${
   process.env.DB_NAME
-}?retryWrites=true&w=majority`;
+}?authSource=${process.env.DB_NAME}&retryWrites=true&w=majority`;
 
 const client = new MongoClient(CONNECTION_STRING);
 

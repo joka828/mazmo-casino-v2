@@ -150,6 +150,9 @@ app.post("/joined", (req, res) => {
 });
 
 app.post("/bets", async (req, res) => {
+  console.log("============= bets =============");
+  console.log(req.headers["bot-secret"], process.env.MAZMO_BOT_SECRET);
+  console.log("============= bets =============");
   if (req.headers["bot-secret"] !== process.env.MAZMO_BOT_SECRET)
     return res.status(401).send("UNAUTHORIZED");
 

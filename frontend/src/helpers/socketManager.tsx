@@ -55,8 +55,8 @@ export default function useSocketEvents() {
 
     socket.on(
       ROULETTE_ROUND_ENDED,
-      (data: { winnerNumber: number; winners: RouletteState["winners"] }) => {
-        rouletteState.noMoreBets(data.winnerNumber, data.winners);
+      (data: { winnerNumber: number; results: RouletteState["results"] }) => {
+        rouletteState.noMoreBets(data.winnerNumber, data.results);
         console.log("round ended, no more bets", data);
       }
     );

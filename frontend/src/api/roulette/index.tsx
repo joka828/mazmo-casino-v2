@@ -8,7 +8,7 @@ interface Methods {
   setRouletteStatus: (state: RouletteState["status"]) => void;
   addBet: (betPlace: BetPlace, amount: number, user: RouletteUser) => void;
   startRound: (roundId: string, finishTimestamp: number) => void;
-  noMoreBets: (winnerNumber: number, winners: RouletteState["winners"]) => void;
+  noMoreBets: (winnerNumber: number, results: RouletteState["results"]) => void;
   startSpinning: () => void;
   endRound: () => void;
 }
@@ -74,7 +74,7 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     finishTimestamp: undefined,
     currentRoundId: undefined,
     winnerNumber: undefined,
-    winners: {},
+    results: {},
     history: [],
     initializeData: (
       initialData: RouletteRound & { history: RouletteState["history"] }
@@ -99,7 +99,7 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
     },
     startRound: (roundId: string, finishTimestamp: number) =>
       set({ status: "openBets", finishTimestamp, currentRoundId: roundId }),
-    noMoreBets: (winnerNumber: number, winners: RouletteState["winners"]) => {
+    noMoreBets: (winnerNumber: number, results: RouletteState["results"]) => {
       setTimeout(() => {
         set({ status: "spinning" });
       }, 2500);
@@ -125,7 +125,7 @@ export const useRouletteState = create<RouletteState & Methods>((set) => {
         return {
           status: "spinning",
           winnerNumber,
-          winners,
+          results,
         };
       });
     },

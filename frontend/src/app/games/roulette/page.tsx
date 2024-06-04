@@ -337,11 +337,11 @@ export default function Roulette() {
             >
               ¡El número ganador es el {rouletteState.winnerNumber}!
             </Typography>
-            {rouletteState.winners?.[currentUserId ?? ""] !== undefined && (
+            {rouletteState.results?.[currentUserId ?? ""] !== undefined && (
               <Typography fontSize={24} sx={{ marginTop: "1rem" }}>
-                {rouletteState.winners?.[currentUserId ?? ""] < 0.01
+                {rouletteState.results?.[currentUserId ?? ""] < 0.01
                   ? "Perdiste :("
-                  : `💸 Ganaste ${rouletteState.winners?.[
+                  : `💸 Ganaste ${rouletteState.results?.[
                       currentUserId ?? ""
                     ].toFixed(2)} sades! 💸`}
               </Typography>

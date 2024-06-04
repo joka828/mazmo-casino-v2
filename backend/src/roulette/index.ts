@@ -68,6 +68,7 @@ export const initializeRoulette = async () => {
     "Initializing with a started round",
     currentRound.finishTimestamp - Date.now()
   );
+
   setTimeout(() => {
     const winnerNumber =
       process.env.NODE_ENV === "development"
@@ -217,23 +218,23 @@ const getResults = (
   placedBets: RouletteRound["bets"]
 ) => {
   const winnerPlaces = getWinnerPlaces(winnerNumber);
-  const winners = {};
+  const results = {};
   const placeIds = Object.keys(placedBets);
 
   placeIds.forEach((placeId) => {
     const usersBets = Object.keys(placedBets[placeId]);
     usersBets.forEach((userId) => {
-      if (!winners[userId]) {
-        winners[userId] = 0;
+      if (!results[userId]) {
+        results[userId] = 0;
       }
       if (winnerPlaces.includes(placeId)) {
-        winners[userId] +=
+        results[userId] +=
           placedBets[placeId][userId] * betPlacesInfo[placeId].multiplier;
       }
     });
   });
 
-  return winners;
+  return results;
 };
 
 export const endRound = async (winnerNumber: number, roundId: string) => {
@@ -250,13 +251,13 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
       $set: {
         status: "finished",
         winnerNumber,
-        winners: results,
+        results,
       },
     }
   );
   socket.emit(ROULETTE_ROUND_ENDED, {
     winnerNumber,
-    winners: results,
+    results,
   });
 
   setTimeout(async () => {

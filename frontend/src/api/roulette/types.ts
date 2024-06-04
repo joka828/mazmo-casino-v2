@@ -63,7 +63,7 @@ export interface RouletteState {
   bets: Record<BetPlace, Record<RouletteUser["id"], number>>;
   status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
   winnerNumber?: number;
-  winners?: Record<string, number>;
+  results?: Record<string, number>;
   history: number[];
 }
 
@@ -73,6 +73,6 @@ export interface RouletteRound {
   status: RouletteState["status"];
   bets: RouletteState["bets"];
   users: RouletteState["users"];
-  winners?: RouletteState["winners"];
+  results?: RouletteState["results"];
   winnerNumber?: number;
 }

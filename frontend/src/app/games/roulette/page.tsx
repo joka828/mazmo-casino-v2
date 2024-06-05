@@ -216,7 +216,7 @@ const HorizontalTile = styled(Button)`
   border: 0.3rem solid #fafafa;
   border-top-width: 0;
   flex-basis: 33.3333%;
-  min-height: 3rem;
+  min-height: 2.5rem;
   font-size: 1.5rem;
   font-weight: 500;
   justify-content: center;

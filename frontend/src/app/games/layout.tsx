@@ -30,7 +30,7 @@ export default function GamesLayout({
       <Row sx={{ width: "100%", justifyContent: "space-between" }}>
         <Tooltip title="Volver al menú" placement="right">
           <Link href="/">
-            <IconButton size="large">
+            <IconButton>
               <ArrowBackIcon fontSize="inherit" color="secondary" />
             </IconButton>
           </Link>

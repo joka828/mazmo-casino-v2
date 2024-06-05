@@ -67,6 +67,7 @@ export default function ChipsContainer({ orientation, users }: Props) {
       name={user.name}
     />
   ));
+
   return orientation === "horizontal" ? (
     <Row>{chips}</Row>
   ) : (

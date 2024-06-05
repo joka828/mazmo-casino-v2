@@ -258,6 +258,11 @@ const ColumnButton = styled(HorizontalTile)`
   :hover {
     background-color: #00000080;
   }
+
+  ${({ theme }) => `${theme.breakpoints.down("xs")} {
+    letter-spacing: -0.1rem;
+    padding: 0;
+  }`}
 `;
 
 const HistoryWrapper = styled(Row)`

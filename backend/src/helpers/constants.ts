@@ -13,3 +13,5 @@ export const CASINO_MANAGEMENT_CHANNEL_ID = "605e6377826ca6001804b80e"; // manag
 export const CASINO_PROD_CHANNEL_ID = "6070e6365095e800113db8ba"; // Production
 export const CASINO_TESTING_CHANNEL_ID = "607f2a8db988dd0018412295"; // Beta testing
 export const CASINO_DEV_CHANNEL_ID = "6428d41850ca570012a90c57"; // Dev channel
+
+export const CASINO_ADMIN_IDS = [];

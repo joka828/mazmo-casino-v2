@@ -14,3 +14,5 @@ export const getSocket = () => {
 export const ROULETTE_ROUND_CREATED = "rouletteRoundCreated";
 export const ROULETTE_BET_ADDED = "rouletteBetAdded";
 export const ROULETTE_ROUND_ENDED = "rouletteRoundEnded";
+
+export const CASINO_STATUS_UPDATED = "casinoStatusUpdated";

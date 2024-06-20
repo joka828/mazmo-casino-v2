@@ -20,6 +20,8 @@ import {
 } from "./helpers/channelMessages";
 import { initializeSocket } from "./helpers/socketManager";
 import { getRouletteStatus, initializeRoulette, placeBet } from "./roulette";
+import managementRouter, { getCasinoStatus } from "./management";
+import { authMiddleware, AuthRequest } from "./helpers/jwtAuth";
 
 connectToDb();
 
@@ -66,6 +68,12 @@ app.get("/mongodb-health", async (req, res) => {
     res.status(502);
     res.send("ERROR");
   }
+});
+
+app.get("/casino-auth", authMiddleware, async (req: AuthRequest, res) => {
+  const casinoStatusData = await getCasinoStatus();
+  res.status(200);
+  res.send({ ...req.claims, status: casinoStatusData.status });
 });
 
 app.post("/message", async (req, res) => {
@@ -223,6 +231,12 @@ app.get("/bot-balance", async (req, res) => {
 
   res.send("OK");
 });
+
+app.use("/management", (req, res, next) => {
+  console.log("LOGGING BODY: ", req.body);
+  next();
+});
+app.use("/management", managementRouter);
 
 httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);

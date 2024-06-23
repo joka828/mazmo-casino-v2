@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { decodeToken } from "react-jwt";
 
 export const authFetch = async (path: string, options?: RequestInit) => {
   const searchParams = new URLSearchParams(window.location.search);

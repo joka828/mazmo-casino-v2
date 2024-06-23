@@ -6,12 +6,13 @@ import bodyParser from "body-parser";
 import { connectToDb, getIsDatabaseConnected } from "./helpers/dbManager";
 
 import {
+  CASINO_ADMIN_IDS,
   CASINO_ID,
   MANAGEMENT_ID,
   MAZMO_API_URL,
   ROULETTE_ID,
 } from "./helpers/constants";
-import { getCasinoBalance } from "./helpers";
+import { getCasinoBalance, transferToUser } from "./helpers";
 import {
   printNonCasinoWelcome,
   printCasinoHelp,
@@ -82,15 +83,22 @@ app.post("/message", async (req, res) => {
 
   const messageContent: string = req.body.message.payload.rawContent;
   if (!messageContent) return res.status(204).send("Nothing to do");
-  const parts = messageContent.toLowerCase().split(" ");
+  let parts = messageContent.toLowerCase().split(" ");
 
   const channelKey = req.body.key;
   const channelId = req.body.message.channel.id;
   const userId = req.body.message.author.id;
-  const isAdmin = userId === 91644;
+  const isAdmin = CASINO_ADMIN_IDS.includes(userId);
+
+  parts = parts.filter((part) => part !== "/dev" && part !== "/test");
 
   if (isAdmin) {
     if (parts[0] === "/casino") {
+      if (parts[1] === "transfer") {
+        const amount = parseInt(parts[2], 10);
+        const userId = parts[3];
+        await transferToUser(userId, amount);
+      }
       if (parts[1] === "set" && parts[2] === "credentials") {
         if (parts[3] === "management") {
           await setChannelCredentials({
@@ -232,10 +240,6 @@ app.get("/bot-balance", async (req, res) => {
   res.send("OK");
 });
 
-app.use("/management", (req, res, next) => {
-  console.log("LOGGING BODY: ", req.body);
-  next();
-});
 app.use("/management", managementRouter);
 
 httpServer.listen(port, () => {

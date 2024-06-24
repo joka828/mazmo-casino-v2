@@ -14,7 +14,7 @@ export const authMiddleware = async (
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).send("Unauthorized");
+    return res.status(401).send("Unauthorized: no token provided");
   }
 
   try {
@@ -27,7 +27,7 @@ export const authMiddleware = async (
     next();
   } catch (e) {
     console.error(e);
-    return res.status(401).send("Unauthorized");
+    return res.status(401).send("Unauthorized: invalid token");
   }
 };
 
@@ -43,7 +43,7 @@ export const adminAuthMiddleware = async (
         req.claims.role === "OWNER"
       )
     ) {
-      return res.status(401).send("Unauthorized");
+      return res.status(401).send("Unauthorized: not an admin");
     }
     next();
   });

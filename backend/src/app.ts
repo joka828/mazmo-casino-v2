@@ -134,12 +134,22 @@ app.post("/message", async (req, res) => {
       }
 
       if (parts[1] === "balance") {
-        const balance = await getCasinoBalance();
-        await sendMessageToGameChannel({
-          message: `Balance: ${balance}`,
-          gameId: MANAGEMENT_ID,
-          to: userId,
-        });
+        console.log("Getting balance");
+        try {
+          const balance = await getCasinoBalance();
+          await sendMessageToGameChannel({
+            message: `Balance: ${balance}`,
+            gameId: MANAGEMENT_ID,
+            to: userId,
+          });
+        } catch (e) {
+          console.log(e);
+          await sendMessageToGameChannel({
+            message: `Error getting balance`,
+            gameId: MANAGEMENT_ID,
+            to: userId,
+          });
+        }
       }
     }
   }

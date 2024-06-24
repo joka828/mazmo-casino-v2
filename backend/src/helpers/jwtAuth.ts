@@ -18,7 +18,6 @@ export const authMiddleware = async (
   }
 
   try {
-    console.log(token, process.env.MAZMO_CHANNEL_JWT_SECRET);
     const jwtClaims = await jwt.verify(
       token.replace("Bearer ", ""),
       process.env.MAZMO_CHANNEL_JWT_SECRET

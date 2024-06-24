@@ -74,7 +74,7 @@ app.get("/mongodb-health", async (req, res) => {
 app.get("/casino-auth", authMiddleware, async (req: AuthRequest, res) => {
   const casinoStatusData = await getCasinoStatus();
   res.status(200);
-  res.send({ ...req.claims, status: casinoStatusData.status });
+  res.send({ ...req.claims, status: casinoStatusData?.status ?? "active" });
 });
 
 app.post("/message", async (req, res) => {

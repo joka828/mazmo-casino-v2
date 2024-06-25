@@ -95,9 +95,17 @@ app.post("/message", async (req, res) => {
   if (isAdmin) {
     if (parts[0] === "/casino") {
       if (parts[1] === "transfer") {
-        const amount = parseInt(parts[2], 10);
-        const userId = parts[3];
-        await transferToUser(userId, amount);
+        try {
+          const userId = parts[2];
+          const amount = parseFloat(parts[3]);
+          await transferToUser(userId, amount);
+        } catch (e) {
+          await sendMessageToGameChannel({
+            message: "Error transferring",
+            gameId: MANAGEMENT_ID,
+            to: userId,
+          });
+        }
       }
       if (parts[1] === "set" && parts[2] === "credentials") {
         if (parts[3] === "management") {
@@ -134,7 +142,6 @@ app.post("/message", async (req, res) => {
       }
 
       if (parts[1] === "balance") {
-        console.log("Getting balance");
         try {
           const balance = await getCasinoBalance();
           await sendMessageToGameChannel({
@@ -143,7 +150,6 @@ app.post("/message", async (req, res) => {
             to: userId,
           });
         } catch (e) {
-          console.log(e);
           await sendMessageToGameChannel({
             message: `Error getting balance`,
             gameId: MANAGEMENT_ID,

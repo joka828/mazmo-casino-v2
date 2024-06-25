@@ -51,7 +51,7 @@ export const getBotTransactions = async () => {
   return documents;
 };
 
-export const getUserByTag = async (userTag) => {
+export const getUserByTag = async (userTag: string) => {
   const { data: user } = await axios.get(`${MAZMO_API_URL}/users/${userTag}`);
   return user;
 };

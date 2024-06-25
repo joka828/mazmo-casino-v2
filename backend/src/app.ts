@@ -12,7 +12,7 @@ import {
   MAZMO_API_URL,
   ROULETTE_ID,
 } from "./helpers/constants";
-import { getCasinoBalance, transferToUser } from "./helpers";
+import { getCasinoBalance, getUserByTag, transferToUser } from "./helpers";
 import {
   printNonCasinoWelcome,
   printCasinoHelp,
@@ -87,8 +87,8 @@ app.post("/message", async (req, res) => {
 
   const channelKey = req.body.key;
   const channelId = req.body.message.channel.id;
-  const userId = req.body.message.author.id;
-  const isAdmin = CASINO_ADMIN_IDS.includes(userId);
+  const authorId = req.body.message.author.id;
+  const isAdmin = CASINO_ADMIN_IDS.includes(authorId);
 
   parts = parts.filter((part) => part !== "/dev" && part !== "/test");
 
@@ -96,18 +96,24 @@ app.post("/message", async (req, res) => {
     if (parts[0] === "/casino") {
       if (parts[1] === "transfer") {
         try {
-          const userId = parts[2];
+          const userTag = parts[2];
+          const user = await getUserByTag(userTag.replace("@", ""));
+
           const amount = parseFloat(parts[3]);
-          await transferToUser(userId, amount);
+          await transferToUser(user.id, amount);
         } catch (e) {
+          if (process.env.NODE_ENV === "development") {
+            console.log(e);
+          }
           await sendMessageToGameChannel({
-            message: "Error transferring",
+            message: `Error transferring: ${e.message}`,
             gameId: MANAGEMENT_ID,
-            to: userId,
+            to: authorId,
           });
         }
       }
       if (parts[1] === "set" && parts[2] === "credentials") {
+        console.log("SETTING CREDENTIALS");
         if (parts[3] === "management") {
           await setChannelCredentials({
             gameId: MANAGEMENT_ID,
@@ -118,7 +124,7 @@ app.post("/message", async (req, res) => {
           await sendMessageToGameChannel({
             message: "Credentials set",
             gameId: MANAGEMENT_ID,
-            to: userId,
+            to: authorId,
           });
         } else {
           await setChannelCredentials({
@@ -136,7 +142,7 @@ app.post("/message", async (req, res) => {
           await sendMessageToGameChannel({
             message: "Credentials set",
             gameId: ROULETTE_ID,
-            to: userId,
+            to: authorId,
           });
         }
       }
@@ -147,13 +153,13 @@ app.post("/message", async (req, res) => {
           await sendMessageToGameChannel({
             message: `Balance: ${balance}`,
             gameId: MANAGEMENT_ID,
-            to: userId,
+            to: authorId,
           });
         } catch (e) {
           await sendMessageToGameChannel({
             message: `Error getting balance`,
             gameId: MANAGEMENT_ID,
-            to: userId,
+            to: authorId,
           });
         }
       }

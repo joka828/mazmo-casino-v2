@@ -101,6 +101,11 @@ app.post("/message", async (req, res) => {
 
           const amount = parseFloat(parts[3]);
           await transferToUser(user.id, amount);
+          await sendMessageToGameChannel({
+            message: `Transfer succesfull`,
+            gameId: MANAGEMENT_ID,
+            to: authorId,
+          });
         } catch (e) {
           if (process.env.NODE_ENV === "development") {
             console.log(e);

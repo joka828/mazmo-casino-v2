@@ -9,7 +9,8 @@ export const MANAGEMENT_ID = "management";
 export const MULTICHANNEL_LOTTERY_ID = "multiChannelLottery";
 export const RANDOM_GIFT_ID = "randomGift";
 
-export const CASINO_MANAGEMENT_CHANNEL_ID = "605e6377826ca6001804b80e"; // management
+export const CASINO_MANAGEMENT_PROD_CHANNEL_ID = "605e6377826ca6001804b80e"; // management
+export const CASINO_MANAGEMENT_DEV_CHANNEL_ID = "667b111dd23ccb0011c79b3d"; // management dev
 export const CASINO_PROD_CHANNEL_ID = "6070e6365095e800113db8ba"; // Production
 export const CASINO_TESTING_CHANNEL_ID = "607f2a8db988dd0018412295"; // Beta testing
 export const CASINO_DEV_CHANNEL_ID = "6428d41850ca570012a90c57"; // Dev channel

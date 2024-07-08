@@ -94,6 +94,13 @@ app.post("/message", async (req, res) => {
 
   if (isAdmin) {
     if (parts[0] === "/casino") {
+      if (parts[1] === "test" && parts[2] === "notice") {
+        await sendMessageToGameChannel({
+          message: "If you can see this, something is wrong with notices",
+          gameId: MANAGEMENT_ID,
+          to: authorId,
+        });
+      }
       if (parts[1] === "transfer") {
         try {
           const userTag = parts[2];

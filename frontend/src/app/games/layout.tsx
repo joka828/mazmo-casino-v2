@@ -21,10 +21,7 @@ export default function GamesLayout({
   const gamePath = pathname.replace("/games", "");
   const currentUserState = useCurrentUserState();
 
-  if (
-    currentUserState.status === "maintenance" ||
-    currentUserState.role !== "OWNER"
-  ) {
+  if (currentUserState.status === "maintenance") {
     return (
       <Column sx={{ height: "100%", justifyContent: "center", gap: "0.5rem" }}>
         <Typography fontSize={24} fontWeight={500}>

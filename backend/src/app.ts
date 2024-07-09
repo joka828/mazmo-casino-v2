@@ -95,11 +95,13 @@ app.post("/message", async (req, res) => {
   if (isAdmin) {
     if (parts[0] === "/casino") {
       if (parts[1] === "test" && parts[2] === "notice") {
+        console.log("TESTING NOTICE");
         await sendMessageToGameChannel({
           message: "If you can see this, something is wrong with notices",
           gameId: MANAGEMENT_ID,
           to: authorId,
         });
+        console.log("TESTING NOTICE END");
       }
       if (parts[1] === "transfer") {
         try {

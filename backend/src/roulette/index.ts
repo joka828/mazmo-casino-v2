@@ -37,6 +37,16 @@ const getCurrentRound = async () => {
   return currentRound;
 };
 
+const getMaxLoses = async () => {
+  const collection = await getDatabaseCollection("casino");
+
+  const maxLoses = await collection.findOne<{ amount: number }>({
+    name: "rouletteMaxLoses",
+  });
+
+  return maxLoses?.amount ?? 10;
+};
+
 const getRound = async (roundId: string) => {
   const collection = await getDatabaseCollection("roulette");
 
@@ -184,11 +194,26 @@ export const createRound = async ({
     finishTimestamp,
   });
 
-  setTimeout(() => {
-    const winnerNumber =
+  setTimeout(async () => {
+    let winnerNumber =
       process.env.NODE_ENV === "development"
         ? 2
         : Math.floor(Math.random() * 37);
+
+    const currentRound = await getRound(currentRoundId);
+    const currentBets = currentRound.bets;
+    const maxLoses = await getMaxLoses();
+
+    let loses =
+      getTotalWinnings(winnerNumber, currentBets) - getTotalBets(currentBets);
+
+    console.log("winner, loses", winnerNumber, loses);
+
+    while (loses >= maxLoses) {
+      winnerNumber = Math.floor(Math.random() * 37);
+      loses =
+        getTotalWinnings(winnerNumber, currentBets) - getTotalBets(currentBets);
+    }
 
     endRound(winnerNumber, currentRoundId);
   }, ROUND_TIME);
@@ -235,6 +260,34 @@ const getResults = (
   });
 
   return results;
+};
+
+const getTotalWinnings = (
+  winnerNumber: number,
+  placedBets: RouletteRound["bets"]
+) => {
+  const results = getResults(winnerNumber, placedBets);
+  let totalWinnings = 0;
+
+  Object.keys(results).forEach((userId) => {
+    totalWinnings += results[userId];
+  });
+
+  return totalWinnings;
+};
+
+const getTotalBets = (placedBets: RouletteRound["bets"]) => {
+  let totalBets = 0;
+  const placeIds = Object.keys(placedBets);
+
+  placeIds.forEach((placeId) => {
+    const usersBets = Object.keys(placedBets[placeId]);
+    usersBets.forEach((userId) => {
+      totalBets += placedBets[placeId][userId];
+    });
+  });
+
+  return totalBets;
 };
 
 export const endRound = async (winnerNumber: number, roundId: string) => {

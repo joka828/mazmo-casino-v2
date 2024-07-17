@@ -7,6 +7,12 @@ export interface ChannelCredentials {
   key: string;
 }
 
+export interface SadesAskData {
+  amount: number;
+  fixed?: boolean;
+  transferData?: Record<string, unknown>;
+}
+
 export const getChannelCredentials: (
   gameId: string
 ) => Promise<ChannelCredentials> = async (gameId: string) => {
@@ -41,10 +47,12 @@ export const sendMessageToGameChannel = async ({
   message,
   to,
   gameId,
+  sadesAsk,
 }: {
   message: string;
   to?: number;
   gameId: string;
+  sadesAsk?: SadesAskData;
 }) => {
   const channelCredentials = await getChannelCredentials(gameId);
 
@@ -53,17 +61,19 @@ export const sendMessageToGameChannel = async ({
     return;
   }
 
-  await sendMessageToChannel({ message, to, channelCredentials });
+  await sendMessageToChannel({ message, to, channelCredentials, sadesAsk });
 };
 
 export const sendMessageToChannel = async ({
   message,
   to,
   channelCredentials,
+  sadesAsk,
 }: {
   message: string;
   to?: number;
   channelCredentials: ChannelCredentials;
+  sadesAsk?: SadesAskData;
 }) => {
   if (!channelCredentials) {
     return new Promise((resolve, reject) => {
@@ -75,6 +85,7 @@ export const sendMessageToChannel = async ({
   const messageData = {
     rawContent: message,
     ...(to ? { toUserId: to, type: "NOTICE" } : {}),
+    ...(sadesAsk ? { transferData: {}, sadesAsk } : {}),
   };
   return axios({
     url: `${MAZMO_API_URL}/chat/channels/${channelCredentials.id}/messages`,

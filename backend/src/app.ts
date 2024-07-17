@@ -93,6 +93,7 @@ app.post("/message", async (req, res) => {
   parts = parts.filter((part) => part !== "/dev" && part !== "/test");
 
   if (isAdmin) {
+    console.log("PROCESSING MESSAGE", parts);
     if (parts[0] === "/casino") {
       if (parts[1] === "test" && parts[2] === "notice") {
         console.log("TESTING NOTICE");
@@ -102,6 +103,38 @@ app.post("/message", async (req, res) => {
           to: authorId,
         });
         console.log("TESTING NOTICE END");
+      }
+
+      if (parts[1] === "cargar") {
+        sendMessageToGameChannel({
+          message: `Dame sades`,
+          gameId: MANAGEMENT_ID,
+          sadesAsk: {
+            amount: 10,
+            fixed: false,
+          },
+        });
+      }
+
+      if (parts[1] === "retirar" && authorId === 91644) {
+        try {
+          const amount = parseFloat(parts[2]);
+          await transferToUser(authorId, amount);
+          await sendMessageToGameChannel({
+            message: `Retiro exitoso de ${amount} sades`,
+            gameId: MANAGEMENT_ID,
+            to: authorId,
+          });
+        } catch (e) {
+          if (process.env.NODE_ENV === "development") {
+            console.log(e.message);
+          }
+          await sendMessageToGameChannel({
+            message: `Error retirando: ${e.message}`,
+            gameId: MANAGEMENT_ID,
+            to: authorId,
+          });
+        }
       }
       if (parts[1] === "transfer") {
         try {
@@ -162,6 +195,7 @@ app.post("/message", async (req, res) => {
       }
 
       if (parts[1] === "balance") {
+        console.log("GETTING BALANCE");
         try {
           const balance = await getCasinoBalance();
           await sendMessageToGameChannel({
@@ -170,6 +204,7 @@ app.post("/message", async (req, res) => {
             to: authorId,
           });
         } catch (e) {
+          console.log("CATCHING ERROR");
           await sendMessageToGameChannel({
             message: `Error getting balance`,
             gameId: MANAGEMENT_ID,

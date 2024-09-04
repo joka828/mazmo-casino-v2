@@ -271,5 +271,5 @@ export const getBingoStatus: () => Promise<
 > = async () => {
   const currentRound = await getCurrentRound();
 
-  return { ...currentRound, currentRoundId: currentRound.id };
+  return { ...currentRound, currentRoundId: currentRound?.id };
 };

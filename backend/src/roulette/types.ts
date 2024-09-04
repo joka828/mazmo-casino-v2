@@ -1,5 +1,5 @@
 export interface RouletteUser {
-  id: string;
+  id: number;
   name: string;
   color: string;
   avatar: string;
@@ -59,7 +59,7 @@ export type BetPlace =
 export interface RouletteState {
   currentRoundId?: string;
   finishTimestamp?: number;
-  users: Record<string, RouletteUser>;
+  users: Record<number, RouletteUser>;
   bets: Record<BetPlace, Record<RouletteUser["id"], number>>;
   status: "inactive" | "openBets" | "noMoreBets" | "spinning" | "finished";
   results?: Record<string, number>;

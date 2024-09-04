@@ -25,7 +25,6 @@ router.get("/", async (req: AuthRequest, res) => {
 });
 
 router.post("/maintenance", async (req, res) => {
-  console.log("Maintenance request", req.body);
   const collection = await getDatabaseCollection("casino");
 
   const newStatus = req.body.maintenance ? "maintenance" : "active";

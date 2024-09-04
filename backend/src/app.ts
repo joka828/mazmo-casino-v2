@@ -6,8 +6,10 @@ import bodyParser from "body-parser";
 import { connectToDb, getIsDatabaseConnected } from "./helpers/dbManager";
 
 import {
+  BINGO_ID,
   CASINO_ADMIN_IDS,
   CASINO_ID,
+  CASINO_PROD_CHANNEL_ID,
   MANAGEMENT_ID,
   MAZMO_API_URL,
   ROULETTE_ID,
@@ -23,6 +25,7 @@ import { initializeSocket } from "./helpers/socketManager";
 import { getRouletteStatus, initializeRoulette, placeBet } from "./roulette";
 import managementRouter, { getCasinoStatus } from "./management";
 import { authMiddleware, AuthRequest } from "./helpers/jwtAuth";
+import { addBingoPlayer, createNextRound, declareBingo, getBingoStatus, startBingoRound } from "./bingo";
 
 connectToDb();
 
@@ -49,8 +52,11 @@ initializeSocket(io);
 
 io.on("connect", async (socket) => {
   const rouletteStatus = await getRouletteStatus();
+  const bingoStatus = await getBingoStatus();
+
   socket.emit("initialize", {
     roulette: rouletteStatus,
+    bingo: bingoStatus,
   });
 });
 
@@ -77,6 +83,29 @@ app.get("/casino-auth", authMiddleware, async (req: AuthRequest, res) => {
   res.send({ ...req.claims, status: casinoStatusData?.status ?? "active" });
 });
 
+// DO NOT COMMIT THIS ENDPOINT
+app.get("/bingo-start", authMiddleware, async (req: AuthRequest, res) => {
+  if (req.claims.id !== 91644) {
+    return res.status(403).send("Forbidden");
+  }
+
+  startBingoRound();
+
+  res.status(200);
+  res.send("OK");
+});
+
+app.get("/bingo-create", authMiddleware, async (req: AuthRequest, res) => {
+  if (req.claims.id !== 91644) {
+    return res.status(403).send("Forbidden");
+  }
+
+  createNextRound();
+
+  res.status(200);
+  res.send("OK");
+});
+
 app.post("/message", async (req, res) => {
   if (req.headers["bot-secret"] !== process.env.MAZMO_BOT_SECRET)
     return res.status(401).send("UNAUTHORIZED");
@@ -92,17 +121,18 @@ app.post("/message", async (req, res) => {
 
   parts = parts.filter((part) => part !== "/dev" && part !== "/test");
 
+  if (parts.length === 1 && (parts[0] === "bingo" || parts[0] === "bingo!")) {
+    declareBingo(authorId);
+  }
+
   if (isAdmin) {
-    console.log("PROCESSING MESSAGE", parts);
     if (parts[0] === "/casino") {
       if (parts[1] === "test" && parts[2] === "notice") {
-        console.log("TESTING NOTICE");
         await sendMessageToGameChannel({
           message: "If you can see this, something is wrong with notices",
           gameId: MANAGEMENT_ID,
           to: authorId,
         });
-        console.log("TESTING NOTICE END");
       }
 
       if (parts[1] === "cargar") {
@@ -146,7 +176,6 @@ app.post("/message", async (req, res) => {
           await sendMessageToGameChannel({
             message: `Transfer succesfull`,
             gameId: MANAGEMENT_ID,
-            to: authorId,
           });
         } catch (e) {
           if (process.env.NODE_ENV === "development") {
@@ -155,7 +184,6 @@ app.post("/message", async (req, res) => {
           await sendMessageToGameChannel({
             message: `Error transferring: ${e.message}`,
             gameId: MANAGEMENT_ID,
-            to: authorId,
           });
         }
       }
@@ -169,7 +197,7 @@ app.post("/message", async (req, res) => {
           });
 
           await sendMessageToGameChannel({
-            message: "Credentials set",
+            message: "Management credentials set",
             gameId: MANAGEMENT_ID,
             to: authorId,
           });
@@ -186,6 +214,12 @@ app.post("/message", async (req, res) => {
             key: channelKey,
           });
 
+          await setChannelCredentials({
+            gameId: BINGO_ID,
+            id: channelId,
+            key: channelKey,
+          });
+
           await sendMessageToGameChannel({
             message: "Credentials set",
             gameId: ROULETTE_ID,
@@ -195,7 +229,6 @@ app.post("/message", async (req, res) => {
       }
 
       if (parts[1] === "balance") {
-        console.log("GETTING BALANCE");
         try {
           const balance = await getCasinoBalance();
           await sendMessageToGameChannel({
@@ -204,12 +237,21 @@ app.post("/message", async (req, res) => {
             to: authorId,
           });
         } catch (e) {
-          console.log("CATCHING ERROR");
           await sendMessageToGameChannel({
             message: `Error getting balance`,
             gameId: MANAGEMENT_ID,
             to: authorId,
           });
+        }
+      }
+
+      if (parts[1] === "bingo") {
+        if (parts[2] === "create") {
+          createNextRound();
+        }
+        
+        if (parts[2] === "start") {
+          
         }
       }
     }
@@ -227,7 +269,7 @@ app.post("/joined", (req, res) => {
     key: req.body.key,
   };
 
-  if (req.body.message.channel.id === process.env.MAZMO_CASINO_ID) {
+  if (req.body.message.channel.id === CASINO_PROD_CHANNEL_ID) {
     printCasinoHelp(req.body.message.author.id, channelCredentials);
   } else {
     printNonCasinoWelcome(req.body.message.author.id, channelCredentials);
@@ -251,6 +293,12 @@ app.post("/bets", async (req, res) => {
           placeId: transaction.data.placeId,
           roundId: transaction.data.roundId,
         });
+      }
+    }
+
+    if (transaction.data.gameId === BINGO_ID) {
+      if (transaction.data.type === "cardBuy") {
+        await addBingoPlayer(transaction.from.owner.id);
       }
     }
 
@@ -316,3 +364,4 @@ app.use("/management", managementRouter);
 httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });
+

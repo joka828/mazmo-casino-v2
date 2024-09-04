@@ -92,7 +92,7 @@ export const initializeRoulette = async () => {
 export const placeBet = async (bet: {
   placeId: BetPlace;
   amount: number;
-  userId: string;
+  userId: number;
   roundId?: string;
 }) => {
   let currentRound;
@@ -110,7 +110,7 @@ export const placeBet = async (bet: {
       message: `La ronda ya terminó, tus ${bet.amount.toFixed(
         2
       )} sades han sido devueltos.`,
-      to: parseInt(bet.userId),
+      to: bet.userId,
     });
 
     return;
@@ -207,8 +207,6 @@ export const createRound = async ({
     let loses =
       getTotalWinnings(winnerNumber, currentBets) - getTotalBets(currentBets);
 
-    console.log("winner, loses", winnerNumber, loses);
-
     while (loses >= maxLoses) {
       winnerNumber = Math.floor(Math.random() * 37);
       loses =
@@ -241,7 +239,7 @@ const getWinnerPlaces = (winnerNumber: number) => {
 const getResults = (
   winnerNumber: number,
   placedBets: RouletteRound["bets"]
-) => {
+): Record<number, any> => {
   const winnerPlaces = getWinnerPlaces(winnerNumber);
   const results = {};
   const placeIds = Object.keys(placedBets);
@@ -316,10 +314,10 @@ export const endRound = async (winnerNumber: number, roundId: string) => {
   setTimeout(async () => {
     const lines = [];
 
-    const winnerIds = Object.keys(results).filter((id) => results[id] > 0);
+    const winnerIds = Object.keys(results).filter((id) => results[id] > 0).map(Number);
     const winnerUsers = await getUsers(winnerIds);
 
-    winnerIds.forEach(async (userId) => {
+    winnerIds.forEach(async (userId: number) => {
       const amount = results[userId];
       lines.push(
         `@${winnerUsers[userId].username} llevándose ${results[userId].toFixed(

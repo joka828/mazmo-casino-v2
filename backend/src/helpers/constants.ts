@@ -2,6 +2,7 @@ export const MAZMO_API_URL = "https://prod.mazmoapi.net";
 
 export const CASINO_ID = "casino";
 export const ROULETTE_ID = "roulette";
+export const BINGO_ID = "bingo";
 export const LOTTERY_ID = "lottery";
 export const BLACKJACK_ID = "blackjack";
 export const SPANK_YOUR_SUB_ID = "spankYourSub";

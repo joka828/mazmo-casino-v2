@@ -14,7 +14,7 @@ export const getCasinoBalance = async () => {
 };
 
 export const transferToUser = (
-  userId: string,
+  userId: number,
   amount: number,
   concept?: string
 ) => {
@@ -23,7 +23,7 @@ export const transferToUser = (
     method: "POST",
     params: { botSecret: process.env.MAZMO_BOT_SECRET },
     data: {
-      to: { type: "USER", id: parseInt(userId, 10) },
+      to: { type: "USER", id: userId },
       concept,
       amount,
       data: {},
@@ -56,14 +56,14 @@ export const getUserByTag = async (userTag: string) => {
   return user;
 };
 
-export const getUser = async (userId) => {
+export const getUser = async (userId: number) => {
   const { data: users } = await axios.get(
     `${MAZMO_API_URL}/users?ids=${userId}`
   );
   return users[userId];
 };
 
-export const getUsers = async (userIds) => {
+export const getUsers = async (userIds: number[]) => {
   const { data: users } = await axios.get(
     `${MAZMO_API_URL}/users?ids=${userIds.join(",")}`
   );

@@ -210,8 +210,6 @@ const drawNumber = async () => {
 export const declareBingo = async (userId: number) => {
   const currentRound = await getCurrentRound();
 
-  console.log('DECLARING BINGO', currentRound);
-
   if (!currentRound) {
     sendMessageToGameChannel({ gameId: BINGO_ID, message: `No hay ronda de bingo abierta`, to: userId });
     return;

@@ -13,7 +13,6 @@ const ManagementPage = () => {
     const getBotBalance = async () => {
       const res = await currentUser.authFetch("/management");
       const data = await res.json();
-      console.log("DATA: ", data);
     };
 
     getBotBalance();

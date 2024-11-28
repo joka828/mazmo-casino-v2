@@ -74,11 +74,6 @@ export const initializeRoulette = async () => {
 
   if (!currentRound) return;
 
-  console.log(
-    "Initializing with a started round",
-    currentRound.finishTimestamp - Date.now()
-  );
-
   setTimeout(() => {
     const winnerNumber =
       process.env.NODE_ENV === "development"

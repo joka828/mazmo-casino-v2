@@ -30,9 +30,6 @@ export default function useSocketEvents() {
     const url = new URL(process.env.NEXT_PUBLIC_API_URL ?? "")
     const socket = io(url.origin ?? "", { path: `${url.pathname}/socket` });
 
-
-    console.log('API', process.env.NEXT_PUBLIC_API_URL, url)
-
     socket.on("connect", () => {
       setSocketStatus(true);
     });
@@ -43,7 +40,6 @@ export default function useSocketEvents() {
         roulette: RouletteRound & { history: RouletteState["history"] };
         bingo: BingoRound;
       }) => {
-        console.log("initialize", initialData);
         rouletteState.initializeData(initialData.roulette);
         // bingoState.initializeData(initialData.bingo);
         setLoading(false);

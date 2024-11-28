@@ -46,7 +46,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: [FRONTEND_URL, "http://localhost:3000"],
   },
-  path: process.env.URL_PATH,
+  path: process.env.SOCKET_URL_PATH,
 });
 
 initializeSocket(io);

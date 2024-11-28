@@ -1,7 +1,7 @@
 
-name: mazmo-casino-v2-backend
+name: mazmo-casino-v2
 services:
-- name: backend
+- name: mazmo-casino-v2-backend
   git:
     branch: master
   dockerfile_path: ./Dockerfile

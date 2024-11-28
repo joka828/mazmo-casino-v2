@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Box, CircularProgress, styled, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useMenuState } from "@/api/menus";
 import { useCurrentUserState } from "@/api/currentUser";
@@ -84,8 +84,9 @@ const menuItems: MenuItem[] = [
     imageUrl: "/roulette-image.png",
   },
   {
-    name: "Blackjack...?",
-    path: "/games/blackjack",
+    name: "Bingo!",
+    // path: "/games/bingo",
+    path: "",
     imageUrl:
       "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA4L3JtNTU4LWVsZW1lbnRzLXdvcmQtMDEteC5qcGc.jpg",
   },
@@ -130,9 +131,9 @@ export default function GamesMenu() {
   const [dbHealth, setDbHealth] = useState<boolean>(false);
 
   const { socketStatus, loading } = useMenuState();
-  const { error } = useCurrentUserState();
+  const { error, setUserToken } = useCurrentUserState();
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchData = async () => {
       const { apiHealth, dbHealth } = await getData();
       setApiHealth(apiHealth);

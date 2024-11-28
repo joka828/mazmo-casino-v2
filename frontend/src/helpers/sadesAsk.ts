@@ -66,6 +66,15 @@ const askForSades = {
     });
     postMessage(message);
   },
+  bingoCardBuy: () => {
+    const message = JSON.stringify({
+      to,
+      amount: process.env.NODE_ENV === "production" ? 5 : 0.02,
+      fixed: true,
+      transferData: { gameId: "bingo", type: "cardBuy" },
+    });
+    postMessage(message);
+  }
 };
 
 export default askForSades;

@@ -27,6 +27,10 @@ export default function RootLayout({
   const currentUserState = useCurrentUserState();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const userToken = searchParams.get("token");
+
+    currentUserState.setUserToken(userToken ?? undefined);
     currentUserState.fetchUserData();
   }, []);
 

@@ -1,10 +1,12 @@
 import { create } from "zustand";
-import { authFetch } from "../currentUser";
+import { useCurrentUserState } from "../currentUser";
 
 export const useManagement = create<{
   balance?: number;
   fetchBalance: () => void;
 }>((set) => {
+  const { authFetch } = useCurrentUserState();
+
   return {
     balance: undefined,
     fetchBalance: async () => {

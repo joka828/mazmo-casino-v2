@@ -1,6 +1,6 @@
 "use client";
 
-import { authFetch, useCurrentUserState } from "@/api/currentUser";
+import { useCurrentUserState } from "@/api/currentUser";
 import Column from "@/components/Column";
 import Row from "@/components/Row";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -11,7 +11,7 @@ const ManagementPage = () => {
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     const getBotBalance = async () => {
-      const res = await authFetch("/management");
+      const res = await currentUser.authFetch("/management");
       const data = await res.json();
       console.log("DATA: ", data);
     };

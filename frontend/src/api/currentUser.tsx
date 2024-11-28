@@ -1,36 +1,49 @@
 import { create } from "zustand";
 
-export const authFetch = async (path: string, options?: RequestInit) => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const token = searchParams.get("token");
-  const fetchOptions = options ?? {};
-
-  if (token) {
-    fetchOptions.headers = {
-      ...fetchOptions.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
-
-  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, fetchOptions);
-};
-
 export const useCurrentUserState = create<{
-  userId?: string;
+  userToken?: string;
+  userId?: number;
   channelId?: string;
   role?: string;
   error: boolean;
   status: "active" | "maintenance" | string;
+  authFetch: (path: string, options?: RequestInit) => Promise<Response>;
+  setUserToken: (userToken?: string) => void;
   fetchUserData: () => void;
   setCasinoStatus: (status: string) => void;
   postMaintenanceStatus: (maintenance: boolean) => void;
-}>((set) => {
+}>((set, get) => {
+  const authFetch = async (path: string, options?: RequestInit) => {
+    const fetchOptions = options ?? {};
+    const userToken = get().userToken;
+
+    if (userToken) {
+      fetchOptions.headers = {
+        ...fetchOptions.headers,
+        Authorization: `Bearer ${userToken}`,
+      };
+    }
+
+    return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, fetchOptions);
+  };
+
   return {
+    userToken: undefined,
     userId: undefined,
     error: false,
     status: "active",
+    authFetch,
+    setUserToken: (userToken?: string) => {
+      if (userToken) {
+        set({ userToken });
+      } else {
+        set({ error: true });
+      }
+    },
     fetchUserData: async () => {
       try {
+        if (!get().userToken) return set({ error: true });
+
         const response = await authFetch("/casino-auth");
 
         if (!response) return set({ error: true });
@@ -39,7 +52,7 @@ export const useCurrentUserState = create<{
           (await response.json()) as Record<string, string>;
 
         return set({
-          userId,
+          userId: Number(userId),
           channelId,
           role,
           error: !userId,

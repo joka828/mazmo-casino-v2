@@ -16,6 +16,7 @@
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.18",
     "@mui/material-nextjs": "^5.15.11",
+    "dayjs": "^1.11.13",
     "easing-utils": "^1.0.0",
     "next": "14.2.3",
     "react": "^18",
